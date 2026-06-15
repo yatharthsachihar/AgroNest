@@ -116,8 +116,8 @@ export default function Footer() {
           <div>
             <div className="site-footer-col-head">Quick Links</div>
             <ul className="site-footer-links">
-              {quickLinks.map(l => (
-                <li key={l.href || l.to}><Link to={l.href || l.to}>{l.label}</Link></li>
+              {quickLinks.map((l, idx) => (
+                <li key={`${l.label}-${l.href || l.to}-${idx}`}><Link to={l.href || l.to}>{l.label}</Link></li>
               ))}
             </ul>
           </div>
@@ -126,8 +126,8 @@ export default function Footer() {
           <div>
             <div className="site-footer-col-head">Support</div>
             <ul className="site-footer-links">
-              {supportLinks.map(l => (
-                <li key={l.href || l.to}><Link to={l.href || l.to}>{l.label}</Link></li>
+              {supportLinks.map((l, idx) => (
+                <li key={`${l.label}-${l.href || l.to}-${idx}`}><Link to={l.href || l.to}>{l.label}</Link></li>
               ))}
             </ul>
           </div>
@@ -136,8 +136,8 @@ export default function Footer() {
           <div>
             <div className="site-footer-col-head">Company</div>
             <ul className="site-footer-links">
-              {companyLinks.map(l => (
-                <li key={l.href || l.to}><Link to={l.href || l.to}>{l.label}</Link></li>
+              {companyLinks.map((l, idx) => (
+                <li key={`${l.label}-${l.href || l.to}-${idx}`}><Link to={l.href || l.to}>{l.label}</Link></li>
               ))}
             </ul>
           </div>
@@ -150,8 +150,8 @@ export default function Footer() {
             {copyright}
           </div>
           <div className="site-footer-payments">
-            {payments.map(p => (
-              <span key={p} className="site-footer-pay-chip">{p}</span>
+            {payments.map((p, idx) => (
+              <span key={`${p}-${idx}`} className="site-footer-pay-chip">{p}</span>
             ))}
           </div>
           <div className="site-footer-policies">

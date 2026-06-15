@@ -13,6 +13,7 @@ import { settingsApi } from "../../../api/settingsApi";
 import PageHeader from "../../components/common/PageHeader";
 import Button from "../../components/common/Button";
 import Skeleton from "../../components/common/Skeleton";
+import { useAuthStore } from "../../store/authStore";
 
 // ── Reusable field ────────────────────────────────────────────
 function Field({ label, type = "text", value, onChange, placeholder, hint, children }) {
@@ -135,6 +136,8 @@ function Section({ icon, title, subtitle, children }) {
 // ── Main Settings Page ────────────────────────────────────────
 export default function SettingsPage() {
   const pageRef     = useRef();
+  const { admin }   = useAuthStore();
+  const isViewer    = admin?.role === 'viewer';
   const queryClient = useQueryClient();
   const [form, setForm] = useState(null);
 
@@ -160,7 +163,9 @@ export default function SettingsPage() {
       queryClient.setQueryData(["settings"], res.data);
       toast.success("Settings saved! Frontend will reflect changes on next load.");
     },
-    onError: () => toast.error("Failed to save settings"),
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Failed to save settings");
+    },
   });
 
   const set = (key, value) => setForm(prev => ({ ...prev, [key]: value }));
@@ -180,6 +185,16 @@ export default function SettingsPage() {
   return (
     <div ref={pageRef} className="dash-section">
 
+      {isViewer && (
+        <div style={{
+          background: "rgba(59,130,246,0.08)", border: "1px solid rgba(59,130,246,0.2)",
+          borderRadius: 12, padding: "12px 16px", marginBottom: 20, fontSize: 13, color: "#3B82F6",
+          display: "flex", alignItems: "center", gap: 8
+        }}>
+          ℹ️ You are in view-only mode. Changes cannot be saved.
+        </div>
+      )}
+
       <PageHeader
         title="Settings"
         subtitle="All changes here update the live website in real-time"
@@ -189,9 +204,11 @@ export default function SettingsPage() {
               onClick={() => { setForm(JSON.parse(JSON.stringify(settings))); toast("Reset to saved values"); }}>
               <FiRefreshCw /> Reset
             </Button>
-            <Button size="sm" loading={saveMutation.isPending} onClick={() => saveMutation.mutate(form)}>
-              <FiSave /> Save All Changes
-            </Button>
+            {!isViewer && (
+              <Button size="sm" loading={saveMutation.isPending} onClick={() => saveMutation.mutate(form)}>
+                <FiSave /> Save All Changes
+              </Button>
+            )}
           </>
         }
       />
@@ -607,19 +624,21 @@ export default function SettingsPage() {
       </div>
 
       {/* ── Sticky save bar ───────────────────────────────── */}
-      <div style={{
-        position: "sticky", bottom: 24, zIndex: 10,
-        display: "flex", justifyContent: "flex-end", gap: 12,
-      }}>
-        <Button
-          size="sm"
-          loading={saveMutation.isPending}
-          onClick={() => saveMutation.mutate(form)}
-          style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}
-        >
-          <FiSave /> Save All Changes
-        </Button>
-      </div>
+      {!isViewer && (
+        <div style={{
+          position: "sticky", bottom: 24, zIndex: 10,
+          display: "flex", justifyContent: "flex-end", gap: 12,
+        }}>
+          <Button
+            size="sm"
+            loading={saveMutation.isPending}
+            onClick={() => saveMutation.mutate(form)}
+            style={{ boxShadow: "0 8px 32px rgba(0,0,0,0.4)" }}
+          >
+            <FiSave /> Save All Changes
+          </Button>
+        </div>
+      )}
 
     </div>
   );

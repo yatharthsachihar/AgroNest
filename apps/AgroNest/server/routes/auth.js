@@ -9,7 +9,7 @@ const generateToken = (id) => jwt.sign({ id }, process.env.JWT_SECRET, { expires
 router.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
-    const admin = await Admin.findOne({ email });
+    const admin = await Admin.findOne({ email: email.toLowerCase() });
     if (!admin || !(await admin.matchPassword(password)))
       return res.status(401).json({ message: 'Invalid email or password' });
     res.json({ token: generateToken(admin._id), admin: { id: admin._id, name: admin.name, email: admin.email, role: admin.role } });
@@ -37,9 +37,9 @@ router.get('/users', protect, async (req, res) => {
 router.post('/users', protect, async (req, res) => {
   try {
     const { name, email, password, role, isActive } = req.body;
-    const exists = await Admin.findOne({ email });
+    const exists = await Admin.findOne({ email: email.toLowerCase() });
     if (exists) return res.status(400).json({ message: 'User already exists' });
-    const user = await Admin.create({ name, email, password, role, isActive });
+    const user = await Admin.create({ name, email: email.toLowerCase(), password, role, isActive });
     res.status(201).json(user);
   } catch (err) { res.status(400).json({ message: err.message }); }
 });
@@ -52,7 +52,7 @@ router.put('/users/:id', protect, async (req, res) => {
     if (!user) return res.status(404).json({ message: 'User not found' });
 
     if (name) user.name = name;
-    if (email) user.email = email;
+    if (email) user.email = email.toLowerCase();
     if (role) user.role = role;
     if (isActive !== undefined) user.isActive = isActive;
     if (password) user.password = password;

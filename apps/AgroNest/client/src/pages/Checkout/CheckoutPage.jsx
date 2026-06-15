@@ -7,6 +7,7 @@ import Navbar  from "../../components/navigation/Navbar";
 import Footer  from "../../components/navigation/Footer";
 import { useCart }     from "../../context/CartContext";
 import { useSettings } from "../../context/SettingsContext";
+import { useUser }     from "../../context/UserContext";
 import { couponApi } from "../../api/couponApi";
 import { orderApi } from "../../api/orderApi";
 import "../../styles/site.css";
@@ -18,6 +19,7 @@ export default function CheckoutPage() {
   const navigate = useNavigate();
   const { cart, totalAmount, clearCart } = useCart();
   const { settings } = useSettings();
+  const { user, loading: userLoading } = useUser();
   const [loading, setLoading] = useState(false);
   const [step, setStep] = useState(1); // 1=details, 2=review, 3=success
   const [orderId, setOrderId] = useState(null);
@@ -26,15 +28,50 @@ export default function CheckoutPage() {
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState("");
 
+  // Authentication Gate
+  useEffect(() => {
+    if (!userLoading && !user) {
+      toast.error("Please login to proceed to checkout.");
+      navigate("/login", { state: { from: "/checkout" } });
+    }
+  }, [user, userLoading, navigate]);
+
   useEffect(() => {
     couponApi.getActive()
       .then(res => setActiveCoupons(res.data))
       .catch(console.error);
   }, []);
 
-  const { register, handleSubmit, getValues, formState: { errors } } = useForm({
+  const { register, handleSubmit, getValues, reset, formState: { errors } } = useForm({
     defaultValues: { paymentMethod: "COD" },
   });
+
+  // Prefill Form with User Data
+  useEffect(() => {
+    if (user) {
+      reset({
+        customerName: user.fullName || "",
+        customerEmail: user.email || "",
+        customerPhone: user.mobile || "",
+        state: user.state || "",
+        city: user.city || "",
+        paymentMethod: "COD"
+      });
+    }
+  }, [user, reset]);
+
+  if (userLoading || !user) {
+    return (
+      <div className="site-root">
+        <Navbar />
+        <div className="checkout-loading-container">
+          <div className="checkout-spinner" />
+          <p style={{ color: "var(--site-text-muted)", fontSize: 16, fontWeight: 500 }}>Verifying your session...</p>
+        </div>
+        <Footer />
+      </div>
+    );
+  }
 
   const paymentOptions = [
     { value: "COD", label: "Cash on Delivery", icon: "💵" }
@@ -112,8 +149,8 @@ export default function CheckoutPage() {
       clearCart();
       
       if (data.paymentMethod === "COD") {
-        setStep(3);
         toast.success("Order placed successfully!");
+        navigate(`/checkout/success?orderId=${order._id}`);
       } else {
         navigate(`/checkout/payment?orderId=${order._id}`);
       }

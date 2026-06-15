@@ -9,8 +9,8 @@ const Settings = require('../models/Settings');
 
 const { protectUser } = require('../middleware/userAuthMiddleware');
 
-// Public — place order
-router.post('/', async (req, res) => {
+// Protected User — place order
+router.post('/', protectUser, async (req, res) => {
   try {
     const { items, couponCode, customerName, customerEmail, customerPhone, address, city, state, pincode, paymentMethod } = req.body;
     
@@ -95,6 +95,28 @@ router.get('/my-orders', protectUser, async (req, res) => {
     }).sort({ createdAt: -1 });
     res.json(orders);
   } catch (err) { res.status(500).json({ message: err.message }); }
+});
+
+// Protected User — cancel their pending order
+router.put('/:id/cancel', protectUser, async (req, res) => {
+  try {
+    const order = await Order.findById(req.params.id);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+    
+    // Check if the order belongs to this user
+    const isOwner = (order.customerEmail === req.user.email) || (order.customerPhone === req.user.mobile);
+    if (!isOwner) {
+      return res.status(403).json({ message: 'Unauthorized to cancel this order' });
+    }
+
+    if (order.status !== 'pending') {
+      return res.status(400).json({ message: 'Only pending orders can be cancelled' });
+    }
+
+    order.status = 'cancelled';
+    await order.save();
+    res.json(order);
+  } catch (err) { res.status(400).json({ message: err.message }); }
 });
 
 // Public — get single order details

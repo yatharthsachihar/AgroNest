@@ -1,10 +1,29 @@
 const express = require('express');
 const jwt     = require('jsonwebtoken');
 const User    = require('../models/User');
+const Admin   = require('../models/Admin');
 const router  = express.Router();
 
 const sign = (id) =>
   jwt.sign({ id, type: 'user' }, process.env.JWT_SECRET, { expiresIn: '30d' });
+
+// Normalize an Admin document into the same shape as User.toPublic()
+const adminToPublicUser = (admin) => ({
+  _id:             admin._id,
+  fullName:        admin.name,
+  email:           admin.email,
+  mobile:          admin.mobile || '',
+  accountType:     'admin',
+  role:            admin.role,
+  state:           '',
+  district:        '',
+  city:            '',
+  isActive:        admin.isActive,
+  isEmailVerified: true,
+  avatar:          '',
+  wishlist:        [],
+  isAdminAccount:  true,
+});
 
 /* ─────────────────────────────────────────
    POST /api/users/register
@@ -48,12 +67,12 @@ router.post('/register', async (req, res) => {
 ───────────────────────────────────────── */
 router.post('/login', async (req, res) => {
   try {
-    const { identifier, password } = req.body; // identifier = email OR mobile
+    const { identifier, password } = req.body;
 
     if (!identifier || !password)
       return res.status(400).json({ message: 'Email/mobile and password are required.' });
 
-    // Allow login with email or mobile
+    // Try the User collection first
     const user = await User.findOne({
       $or: [
         { email:  identifier.toLowerCase() },
@@ -61,14 +80,27 @@ router.post('/login', async (req, res) => {
       ],
     });
 
-    if (!user || !(await user.matchPassword(password)))
-      return res.status(401).json({ message: 'Invalid credentials. Please try again.' });
+    if (user) {
+      if (!(await user.matchPassword(password)))
+        return res.status(401).json({ message: 'Invalid credentials. Please try again.' });
+      if (!user.isActive)
+        return res.status(403).json({ message: 'Your account has been deactivated. Contact support.' });
 
-    if (!user.isActive)
-      return res.status(403).json({ message: 'Your account has been deactivated. Contact support.' });
+      const token = sign(user._id);
+      return res.json({ token, user: user.toPublic() });
+    }
 
-    const token = sign(user._id);
-    res.json({ token, user: user.toPublic() });
+    // Fallback: allow Admin accounts to log in as site users too
+    const admin = await Admin.findOne({ email: identifier.toLowerCase() });
+    if (admin && (await admin.matchPassword(password))) {
+      if (!admin.isActive)
+        return res.status(403).json({ message: 'Your account has been deactivated. Contact support.' });
+
+      const token = sign(admin._id);
+      return res.json({ token, user: adminToPublicUser(admin) });
+    }
+
+    return res.status(401).json({ message: 'Invalid credentials. Please try again.' });
   } catch (err) {
     console.error('[Login]', err.message);
     res.status(500).json({ message: err.message });

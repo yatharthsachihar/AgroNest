@@ -209,7 +209,7 @@ export default function LoginPage() {
           {/* Switch to register */}
           <p className="auth-switch">
             Don't have an account?
-            <Link to="/register">Create Account</Link>
+            <Link to="/register" state={{ from }}>Create Account</Link>
           </p>
 
         </div>

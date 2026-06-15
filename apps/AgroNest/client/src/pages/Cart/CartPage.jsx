@@ -1,42 +1,59 @@
 import { Link, useNavigate } from "react-router-dom";
-import { FiTrash2, FiMinus, FiPlus, FiArrowRight } from "react-icons/fi";
-import Navbar  from "../../components/navigation/Navbar";
-import Footer  from "../../components/navigation/Footer";
+import { FiTrash2, FiMinus, FiPlus, FiArrowRight, FiLock } from "react-icons/fi";
+import Navbar      from "../../components/navigation/Navbar";
+import Footer      from "../../components/navigation/Footer";
 import { useCart }     from "../../context/CartContext";
 import { useSettings } from "../../context/SettingsContext";
+import { useUser }     from "../../context/UserContext";
 import "../../styles/site.css";
 import "./CartPage.css";
 
 export default function CartPage() {
-  const navigate = useNavigate();
+  const navigate  = useNavigate();
   const { cart, updateQty, removeFromCart, totalAmount, totalItems } = useCart();
-  const { settings } = useSettings();
+  const { settings }  = useSettings();
+  const { user }      = useUser();
+
   const freeShipping = settings?.freeShippingAbove || 999;
-  const shipping = totalAmount >= freeShipping ? 0 : 79;
-  const grandTotal = totalAmount + shipping;
+  const shipping     = totalAmount >= freeShipping ? 0 : 79;
+  const grandTotal   = totalAmount + shipping;
+
+  /* ── Login gate: redirect to /login, return back here after ── */
+  const handleCheckout = () => {
+    if (!user) {
+      navigate("/login", { state: { from: "/checkout" } });
+      return;
+    }
+    navigate("/checkout");
+  };
 
   return (
     <div className="site-root">
       <Navbar />
       <div className="cart-page">
         <div className="site-container">
-          <h1 className="cart-heading">Shopping Cart
+          <h1 className="cart-heading">
+            Shopping Cart
             {totalItems > 0 && <span className="cart-count">{totalItems} items</span>}
           </h1>
 
           {cart.length === 0 ? (
             <div className="cart-empty">
-              <div style={{ fontSize:80 }}>🛒</div>
+              <div style={{ fontSize: 80 }}>🛒</div>
               <h2>Your cart is empty</h2>
               <p>Browse our agricultural products and add items to your cart.</p>
-              <Link to="/products" className="site-btn-primary">Start Shopping <FiArrowRight /></Link>
+              <Link to="/products" className="site-btn-primary">
+                Start Shopping <FiArrowRight />
+              </Link>
             </div>
           ) : (
             <div className="cart-layout">
-              {/* Items */}
+
+              {/* ── Items ── */}
               <div className="cart-items">
                 {cart.map(item => {
-                  const img = item.images?.[0] || `https://placehold.co/120x120/E8F5EC/1F7A3D?text=${encodeURIComponent(item.name?.slice(0,8))}`;
+                  const img = item.images?.[0]
+                    || `https://placehold.co/120x120/E8F5EC/1F7A3D?text=${encodeURIComponent(item.name?.slice(0, 8))}`;
                   return (
                     <div key={item._id} className="cart-item">
                       <Link to={`/products/${item.slug || item._id}`} className="cart-item-img">
@@ -66,22 +83,30 @@ export default function CartPage() {
                 })}
               </div>
 
-              {/* Summary */}
+              {/* ── Summary ── */}
               <div className="cart-summary">
                 <h3>Order Summary</h3>
                 <div className="cart-summary-rows">
-                  <div className="cart-summary-row"><span>Subtotal</span><span>₹{totalAmount.toLocaleString("en-IN")}</span></div>
+                  <div className="cart-summary-row">
+                    <span>Subtotal</span>
+                    <span>₹{totalAmount.toLocaleString("en-IN")}</span>
+                  </div>
                   <div className="cart-summary-row">
                     <span>Shipping</span>
-                    <span>{shipping === 0 ? <span style={{ color:"var(--site-primary)", fontWeight:600 }}>FREE</span> : `₹${shipping}`}</span>
+                    <span>
+                      {shipping === 0
+                        ? <span style={{ color: "var(--site-primary)", fontWeight: 600 }}>FREE</span>
+                        : `₹${shipping}`}
+                    </span>
                   </div>
                   {totalAmount < freeShipping && (
                     <div className="cart-free-shipping-bar">
-                      <div style={{ fontSize:12, marginBottom:6, color:"var(--site-text-muted)" }}>
+                      <div style={{ fontSize: 12, marginBottom: 6, color: "var(--site-text-muted)" }}>
                         Add ₹{(freeShipping - totalAmount).toLocaleString("en-IN")} more for free shipping
                       </div>
                       <div className="cart-progress-bg">
-                        <div className="cart-progress-fill" style={{ width:`${Math.min(100,(totalAmount/freeShipping)*100)}%` }} />
+                        <div className="cart-progress-fill"
+                          style={{ width: `${Math.min(100, (totalAmount / freeShipping) * 100)}%` }} />
                       </div>
                     </div>
                   )}
@@ -91,21 +116,38 @@ export default function CartPage() {
                   </div>
                 </div>
 
-                <button className="site-btn-primary" style={{ width:"100%", justifyContent:"center", marginTop:8 }}
-                  onClick={() => navigate("/checkout")}>
-                  Proceed to Checkout <FiArrowRight />
+                {/* ── Login gate notice ── */}
+                {!user && (
+                  <div className="cart-login-notice">
+                    <FiLock size={15} />
+                    <span>You must be <strong>logged in</strong> to place an order</span>
+                  </div>
+                )}
+
+                <button
+                  className="site-btn-primary"
+                  style={{ width: "100%", justifyContent: "center", marginTop: 8 }}
+                  onClick={handleCheckout}
+                >
+                  {user ? (
+                    <>Proceed to Checkout <FiArrowRight /></>
+                  ) : (
+                    <><FiLock size={15} /> Login to Checkout</>
+                  )}
                 </button>
-                <Link to="/products" className="site-btn-secondary" style={{ width:"100%", justifyContent:"center", marginTop:10 }}>
+
+                <Link to="/products" className="site-btn-secondary"
+                  style={{ width: "100%", justifyContent: "center", marginTop: 10 }}>
                   Continue Shopping
                 </Link>
 
-                {/* Trust */}
                 <div className="cart-trust">
                   <span>🔒 Secure checkout</span>
                   <span>✅ Genuine products</span>
                   <span>🚚 Fast delivery</span>
                 </div>
               </div>
+
             </div>
           )}
         </div>

@@ -56,9 +56,14 @@ export const UserProvider = ({ children }) => {
     return () => clearInterval(interval);
   }, [user, navigate]);
 
-  // Listen for global axios 403 intercepts
+  // Listen for global axios 403 intercepts — only relevant if we
+  // currently believe a user is logged in. If nobody is logged in
+  // (e.g. someone is on the login/register page attempting to sign
+  // in), a stray 403 from an unrelated request must NOT redirect
+  // them away to /deactivated.
   useEffect(() => {
     const handleAuthError = () => {
+      if (!localStorage.getItem('agronest_user_token')) return;
       logout();
       navigate('/deactivated', { replace: true });
     };

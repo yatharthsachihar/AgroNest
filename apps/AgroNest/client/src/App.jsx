@@ -38,6 +38,7 @@ import SiteProductsPage         from "./pages/Products/ProductsPage";
 import SiteProductDetail        from "./pages/Product/ProductDetailPage";
 import SiteCart                 from "./pages/Cart/CartPage";
 import SiteCheckout             from "./pages/Checkout/CheckoutPage";
+import { OrderSuccessPage }     from "./components/checkout/OrderSuccessModel";
 import SiteCategories           from "./pages/Categories/CategoriesPage";
 import BlogPage                 from "./pages/Blog/BlogPage";
 import BlogPostPage             from "./pages/Blog/BlogPostPage";
@@ -46,6 +47,7 @@ import ContactPage              from "./pages/Contact/ContactPage";
 import LoginPage                from "./pages/Account/LoginPage";
 import RegisterPage             from "./pages/Account/RegisterPage";
 import ProfilePage              from "./pages/Account/ProfilePage";
+import OrdersHistoryPage        from "./pages/Account/OrdersHistoryPage";
 import ForgotPasswordPage       from "./pages/Account/ForgotPasswordPage";
 import DeactivatedPage          from "./pages/Account/DeactivatedPage";
 import WishlistPage             from "./pages/Wishlist/WishlistPage";
@@ -96,6 +98,7 @@ export default function App() {
             <Route path="/products/:slug"   element={<PageGate pageKey="shop"><SiteProductDetail /></PageGate>} />
             <Route path="/cart"             element={<SiteCart />} />
             <Route path="/checkout"         element={<SiteCheckout />} />
+            <Route path="/checkout/success" element={<OrderSuccessPage />} />
             <Route path="/categories"       element={<PageGate pageKey="categories"><SiteCategories /></PageGate>} />
             <Route path="/categories/:slug" element={<CategoryRedirect />} />
             <Route path="/blog"             element={<PageGate pageKey="blog"><BlogPage /></PageGate>} />
@@ -108,6 +111,7 @@ export default function App() {
             <Route path="/register"         element={<RegisterPage />} />
             <Route path="/forgot-password"  element={<ForgotPasswordPage />} />
             <Route path="/account"          element={<ProfilePage />} />
+            <Route path="/account/orders"   element={<OrdersHistoryPage />} />
             <Route path="/wishlist"         element={<WishlistPage />} />
             <Route path="/deactivated"      element={<DeactivatedPage />} />
 

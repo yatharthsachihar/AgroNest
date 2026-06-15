@@ -78,7 +78,7 @@ export default function PaymentPage() {
       
       toast.success("Payment successful!");
       // Success redirection logic
-      navigate("/products"); // Redirection to products page or a success view
+      navigate(`/checkout/success?orderId=${orderId}`);
       // We can also render a clean inline success step
       setOrder(updatedOrder);
     } catch (err) {

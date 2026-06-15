@@ -12,7 +12,7 @@ import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import SearchInput from "../../components/common/SearchInput";
 import Skeleton from "../../components/common/Skeleton";
-import { useAuth } from "../../../context/AuthContext";
+import { useAuthStore } from "../../store/authStore";
 
 const ROLES = ["super_admin", "admin", "editor", "support", "viewer"];
 
@@ -113,7 +113,7 @@ function AdminUserForm({ user, onSuccess }) {
 }
 
 export default function UsersPage() {
-  const { admin } = useAuth();
+  const { admin } = useAuthStore();
   const isViewer = admin?.role === 'viewer';
   const qc = useQueryClient();
   const [modal,    setModal]    = useState(null);

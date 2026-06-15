@@ -26,7 +26,7 @@ export default function WishlistPage() {
   return (
     <div className="site-root">
       <Navbar />
-      <div className="site-container" style={{ padding: "60px 0", minHeight: "60vh" }}>
+      <div className="site-container" style={{ padding: "120px 0 60px", minHeight: "60vh" }}>
         
         <div style={{ display: "flex", alignItems: "center", gap: 15, marginBottom: 40 }}>
           <FiHeart size={32} color="var(--site-primary)" />

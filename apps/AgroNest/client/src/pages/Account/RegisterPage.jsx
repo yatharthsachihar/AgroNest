@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import {
   FiUser, FiPhone, FiMail, FiLock,
   FiEye, FiEyeOff, FiMapPin, FiArrowRight, FiAlertCircle, FiArrowLeft,
@@ -52,6 +52,8 @@ const INIT = {
 export default function RegisterPage() {
   const { register } = useUser();
   const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from || "/";
 
   const [form,    setForm]    = useState(INIT);
   const [showPw,  setShowPw]  = useState(false);
@@ -98,7 +100,7 @@ export default function RegisterPage() {
         city:        form.city.trim(),
         password:    form.password,
       });
-      navigate("/", { replace: true });
+      navigate(from, { replace: true });
     } catch (err) {
       setError(err.response?.data?.message || "Registration failed. Please try again.");
     } finally {

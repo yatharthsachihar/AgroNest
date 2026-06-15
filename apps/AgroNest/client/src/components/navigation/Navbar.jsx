@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { Link, NavLink, useNavigate, useLocation } from "react-router-dom";
 import {
   FiSearch, FiShoppingCart, FiHeart, FiSun, FiMoon,
-  FiUser, FiMenu, FiX, FiLogOut, FiChevronDown, FiTrash2
+  FiUser, FiMenu, FiX, FiLogOut, FiChevronDown, FiTrash2, FiPackage
 } from "react-icons/fi";
 import toast from "react-hot-toast";
 import { userApi } from "../../api/userApi";
@@ -151,8 +151,8 @@ export default function Navbar() {
 
           {/* Desktop links */}
           <div className="site-nav-links">
-            {visibleNavLinks.map(l => (
-              <NavLink key={l.to} to={l.to} end={l.to === "/"}
+            {visibleNavLinks.map((l, idx) => (
+              <NavLink key={`${l.to}-${idx}`} to={l.to} end={l.to === "/"}
                 className={({ isActive }) => "site-nav-link" + (isActive ? " active" : "")}>
                 {l.label}
               </NavLink>
@@ -173,15 +173,22 @@ export default function Navbar() {
           <div className="site-nav-actions">
 
             {/* Theme */}
-            <button className="site-theme-toggle" onClick={toggleTheme}
+            <button className="site-theme-toggle hide-on-mobile" onClick={toggleTheme}
               title={theme === "dark" ? "Switch to Light" : "Switch to Dark"}>
               {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
             </button>
 
             {/* Wishlist */}
-            <Link to="/wishlist" className="site-nav-icon-btn" title="Wishlist">
+            <Link to="/wishlist" className="site-nav-icon-btn hide-on-mobile" title="Wishlist">
               <FiHeart size={18} />
             </Link>
+
+            {/* View Orders */}
+            {!isB2B && user && (
+              <Link to="/account/orders" className="site-nav-icon-btn hide-on-mobile" title="View Orders">
+                <FiPackage size={18} />
+              </Link>
+            )}
 
             {/* Cart — only in Retail mode. Show skeleton while settings load to avoid flicker. */}
             {settingsLoading ? (
@@ -215,6 +222,24 @@ export default function Navbar() {
                     }}>
                       <div style={{ padding: "8px 10px", fontSize: 13, fontWeight: 700, color: "var(--site-text)" }}>{user.fullName}</div>
                       <div style={{ padding: "0 10px 8px", fontSize: 12, color: "var(--site-text-muted)" }}>{user.email}</div>
+                      
+                      <Link to="/account" onClick={() => setUserMenu(false)} style={{
+                        textDecoration: "none", display: "flex", alignItems: "center", gap: 8,
+                        padding: "8px 10px", background: "none", border: "none", borderRadius: 8,
+                        color: "var(--site-text)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
+                      }}>
+                        <FiUser size={14} /> My Profile
+                      </Link>
+                      
+                      <Link to="/account/orders" onClick={() => setUserMenu(false)} style={{
+                        textDecoration: "none", display: "flex", alignItems: "center", gap: 8,
+                        padding: "8px 10px", background: "none", border: "none", borderRadius: 8,
+                        color: "var(--site-text)", fontSize: 13, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
+                        marginBottom: 8
+                      }}>
+                        <FiPackage size={14} /> View Orders
+                      </Link>
+                      
                       <button onClick={handleLogout} style={{
                         width: "100%", display: "flex", alignItems: "center", gap: 8,
                         padding: "8px 10px", background: "none", border: "none", borderRadius: 8,
@@ -259,13 +284,24 @@ export default function Navbar() {
 
       {/* Mobile drawer */}
       <div className={`site-nav-mobile${mobileOpen ? " open" : ""}`}>
-        {visibleNavLinks.map(l => (
-          <NavLink key={l.to} to={l.to} end={l.to === "/"}
+        {/* Search bar in mobile drawer */}
+        <form className="site-nav-search" style={{ marginBottom: 12, width: "100%" }} onSubmit={handleSearch}>
+          <FiSearch size={16} />
+          <input placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)} />
+        </form>
+
+        {visibleNavLinks.map((l, idx) => (
+          <NavLink key={`${l.to}-${idx}`} to={l.to} end={l.to === "/"}
             className={({ isActive }) => "site-nav-link" + (isActive ? " active" : "")}
             onClick={() => setMobileOpen(false)}>
             {l.label}
           </NavLink>
         ))}
+
+        {/* Wishlist Link in mobile drawer */}
+        <Link to="/wishlist" className="site-nav-link" onClick={() => setMobileOpen(false)}>
+          <FiHeart size={16} /> Wishlist
+        </Link>
 
         {!isB2B && (
           user ? (
@@ -284,6 +320,24 @@ export default function Navbar() {
                   <div style={{ fontSize: 12, color: "var(--site-text-muted)" }}>{user.email}</div>
                 </div>
               </div>
+
+              <Link to="/account" onClick={() => setMobileOpen(false)} style={{
+                textDecoration: "none", display: "flex", alignItems: "center", gap: 10,
+                padding: "12px 14px", background: "none", border: "none", borderRadius: 12,
+                color: "var(--site-text)", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
+              }}>
+                <FiUser size={16} /> My Profile
+              </Link>
+              
+              <Link to="/account/orders" onClick={() => setMobileOpen(false)} style={{
+                textDecoration: "none", display: "flex", alignItems: "center", gap: 10,
+                padding: "12px 14px", background: "none", border: "none", borderRadius: 12,
+                color: "var(--site-text)", fontSize: 14, fontWeight: 600, cursor: "pointer", fontFamily: "inherit",
+                marginBottom: 8
+              }}>
+                <FiPackage size={16} /> View Orders
+              </Link>
+
               <button onClick={() => { handleLogout(); setMobileOpen(false); }}
                 style={{
                   display: "flex", alignItems: "center", gap: 10, padding: "12px 14px",
@@ -339,10 +393,6 @@ export default function Navbar() {
           {theme === "dark" ? "Switch to Light Mode" : "Switch to Dark Mode"}
         </button>
 
-        <form className="site-nav-search" style={{ marginTop: 12, width: "100%" }} onSubmit={handleSearch}>
-          <FiSearch size={16} />
-          <input placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)} />
-        </form>
       </div>
 
     </header>

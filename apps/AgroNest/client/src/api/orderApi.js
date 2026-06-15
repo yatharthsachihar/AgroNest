@@ -7,4 +7,6 @@ export const orderApi = {
   updateStatus: (id, data) => API.put(`/orders/${id}`, data),
   pay: (id, data) => API.put(`/orders/${id}/pay`, data),
   remove: (id) => API.delete(`/orders/${id}`),
+  getMyOrders: () => API.get('/orders/my-orders'),
+  cancel: (id) => API.put(`/orders/${id}/cancel`),
 };

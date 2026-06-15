@@ -10,6 +10,7 @@ import Button from "../../components/common/Button";
 import Modal from "../../components/common/Modal";
 import Skeleton from "../../components/common/Skeleton";
 import { useForm } from "react-hook-form";
+import { useAuthStore } from "../../store/authStore";
 
 // ── Banner form (used for both create and edit) ───────────────
 function BannerForm({ banner, onSuccess }) {
@@ -98,6 +99,8 @@ function BannerForm({ banner, onSuccess }) {
 // ── Main Banners Page ───────────────────────────────────────
 export default function BannersPage() {
   const pageRef     = useRef();
+  const { admin }   = useAuthStore();
+  const isViewer    = admin?.role === 'viewer';
   const queryClient = useQueryClient();
   const [modal,    setModal]    = useState(null);  // null | 'create' | banner object
   const [deleting, setDeleting] = useState(null);
@@ -119,12 +122,18 @@ export default function BannersPage() {
       toast.success("Banner deleted");
       setDeleting(null);
     },
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Failed to delete banner");
+    }
   });
 
   // Toggle active/inactive directly
   const toggleMutation = useMutation({
     mutationFn: ({ id, isActive }) => bannerApi.update(id, { isActive }),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: ["banners"] }),
+    onError: (err) => {
+      toast.error(err?.response?.data?.message || "Failed to update banner visibility");
+    }
   });
 
   return (
@@ -134,9 +143,11 @@ export default function BannersPage() {
         title="Banners"
         subtitle={`${banners.length} banners`}
         actions={
-          <Button size="sm" onClick={() => setModal("create")}>
-            <FiPlus /> Add Banner
-          </Button>
+          !isViewer && (
+            <Button size="sm" onClick={() => setModal("create")}>
+              <FiPlus /> Add Banner
+            </Button>
+          )
         }
       />
 
@@ -151,7 +162,7 @@ export default function BannersPage() {
             <FiImage />
             <h3>No Banners Yet</h3>
             <p>Create your first homepage banner</p>
-            <Button size="sm" onClick={() => setModal("create")}><FiPlus /> Add Banner</Button>
+            {!isViewer && <Button size="sm" onClick={() => setModal("create")}><FiPlus /> Add Banner</Button>}
           </div>
         </div>
       ) : (
@@ -203,15 +214,21 @@ export default function BannersPage() {
 
               {/* Actions */}
               <div style={{ padding: "18px 20px", display: "flex", flexDirection: "column", gap: 8, justifyContent: "center" }}>
-                <Button variant="secondary" size="sm" onClick={() => setModal(banner)}><FiEdit /> Edit</Button>
-                <Button
-                  variant={banner.isActive ? "ghost" : "secondary"}
-                  size="sm"
-                  onClick={() => toggleMutation.mutate({ id: banner._id, isActive: !banner.isActive })}
-                >
-                  {banner.isActive ? <><FiEyeOff /> Hide</> : <><FiEye /> Show</>}
-                </Button>
-                <Button variant="danger" size="sm" onClick={() => setDeleting(banner)}><FiTrash2 /></Button>
+                {!isViewer ? (
+                  <>
+                    <Button variant="secondary" size="sm" onClick={() => setModal(banner)}><FiEdit /> Edit</Button>
+                    <Button
+                      variant={banner.isActive ? "ghost" : "secondary"}
+                      size="sm"
+                      onClick={() => toggleMutation.mutate({ id: banner._id, isActive: !banner.isActive })}
+                    >
+                      {banner.isActive ? <><FiEyeOff /> Hide</> : <><FiEye /> Show</>}
+                    </Button>
+                    <Button variant="danger" size="sm" onClick={() => setDeleting(banner)}><FiTrash2 /></Button>
+                  </>
+                ) : (
+                  <span style={{ fontSize: 12, color: "var(--text-muted)" }}>Read only</span>
+                )}
               </div>
             </div>
           ))}

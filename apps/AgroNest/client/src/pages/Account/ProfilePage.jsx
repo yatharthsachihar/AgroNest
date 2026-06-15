@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import toast from "react-hot-toast";
+import { FiUser, FiPackage, FiLogOut } from "react-icons/fi";
 import Navbar from "../../components/navigation/Navbar";
 import Footer from "../../components/navigation/Footer";
 import { useUser } from "../../context/UserContext";
@@ -48,7 +49,7 @@ export default function ProfilePage() {
   return (
     <div className="site-root">
       <Navbar />
-      <div className="site-container" style={{ padding: "40px 0", minHeight: "60vh", display: "grid", gridTemplateColumns: "300px 1fr", gap: 40 }}>
+      <div className="site-container" style={{ padding: "120px 0 60px", minHeight: "60vh", display: "grid", gridTemplateColumns: "300px 1fr", gap: 40 }}>
         
         {/* Sidebar */}
         <aside style={{ background: "var(--site-bg)", padding: 20, borderRadius: 12, border: "1px solid var(--site-border)" }}>
@@ -62,9 +63,28 @@ export default function ProfilePage() {
             </div>
           </div>
           
-          <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-            <button style={{ textAlign: "left", padding: "10px 15px", background: "var(--site-green-light)", color: "var(--site-green)", border: "none", borderRadius: 8, fontWeight: 600 }}>My Profile</button>
-            <button onClick={logout} style={{ textAlign: "left", padding: "10px 15px", background: "transparent", color: "var(--site-red)", border: "none", borderRadius: 8, fontWeight: 600, cursor: "pointer" }}>Logout</button>
+          <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+            <button style={{ 
+              textAlign: "left", padding: "12px 16px", background: "var(--site-green-light)", 
+              color: "var(--site-primary)", border: "none", borderRadius: 10, 
+              fontWeight: 600, display: "flex", alignItems: "center", gap: 10 
+            }}>
+              <FiUser size={16} /> My Profile
+            </button>
+            <button onClick={() => navigate("/account/orders")} style={{ 
+              textAlign: "left", padding: "12px 16px", background: "transparent", 
+              color: "var(--site-text)", border: "none", borderRadius: 10, 
+              fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 
+            }}>
+              <FiPackage size={16} /> My Orders
+            </button>
+            <button onClick={logout} style={{ 
+              textAlign: "left", padding: "12px 16px", background: "transparent", 
+              color: "var(--site-red, #dc2626)", border: "none", borderRadius: 10, 
+              fontWeight: 600, cursor: "pointer", display: "flex", alignItems: "center", gap: 10 
+            }}>
+              <FiLogOut size={16} /> Logout
+            </button>
           </div>
         </aside>
 

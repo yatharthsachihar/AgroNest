@@ -1,0 +1,542 @@
+/* src/components/checkout/OrderSuccessModel.module.css */
+
+/* ── Overlay & Modal (Standard site overlay for the success view) ── */
+.osm-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 22, 18, 0.65);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2000;
+    padding: 20px;
+    animation: osmFadeIn 0.3s ease;
+}
+
+@keyframes osmFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.osm-modal {
+    background: #ffffff;
+    border-radius: 24px;
+    padding: 35px;
+    max-width: 900px;
+    width: 100%;
+    text-align: center;
+    position: relative;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.15);
+    animation: osmPopIn 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    max-height: 90vh;
+    overflow-y: auto;
+}
+
+@keyframes osmPopIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px) scale(0.97);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.osm-close {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    border: none;
+    background: #E8F5EC;
+    color: #2E7D32;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    z-index: 10;
+}
+
+.osm-close:hover {
+    background: #1B5E20;
+    color: #ffffff;
+}
+
+.osm-success-icon {
+    width: 64px;
+    height: 64px;
+    border-radius: 50%;
+    background: #E8F5EC;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 16px;
+    color: #1B5E20;
+    border: 2px solid #66BB6A;
+}
+
+.osm-title {
+    font-size: 1.8rem;
+    font-weight: 800;
+    color: #1A3322;
+    margin: 0 0 8px;
+}
+
+.osm-sub {
+    font-size: 14px;
+    color: #4B5563;
+    line-height: 1.5;
+    margin: 0 0 24px;
+}
+
+.osm-sub strong {
+    color: #1B5E20;
+    font-weight: 700;
+}
+
+.osm-order-summary {
+    background: #F4F9F5;
+    border: 1px solid #E8F5EC;
+    border-radius: 16px;
+    padding: 16px 24px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 24px;
+    text-align: left;
+}
+
+.osm-row {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: #4B5563;
+}
+
+.osm-row strong {
+    color: #111827;
+    font-weight: 700;
+    font-size: 14px;
+}
+
+.osm-row-total {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    font-size: 12px;
+    color: #4B5563;
+    text-align: right;
+}
+
+.osm-row-total strong {
+    font-size: 22px;
+    color: #1B5E20;
+    font-weight: 800;
+}
+
+.osm-bill-note {
+    font-size: 13px;
+    color: #6B7280;
+    margin: 0 0 24px;
+}
+
+.osm-download-btn {
+    width: 100%;
+    height: 52px;
+    background: #1B5E20;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    transition: all 0.25s ease;
+    box-shadow: 0 4px 12px rgba(27, 94, 32, 0.15);
+}
+
+.osm-download-btn:hover {
+    background: #2E7D32;
+    transform: translateY(-1px);
+    box-shadow: 0 6px 16px rgba(27, 94, 32, 0.25);
+}
+
+.osm-continue-btn {
+    width: 100%;
+    height: 48px;
+    background: transparent;
+    color: #4B5563;
+    border: 1.5px solid #E5E7EB;
+    border-radius: 12px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.osm-continue-btn:hover {
+    border-color: #1B5E20;
+    color: #1B5E20;
+    background: #F4F9F5;
+}
+
+/* ── Hidden capture container ── */
+.osm-bill-hidden {
+    position: absolute;
+    top: -99999px;
+    left: -99999px;
+    width: 800px;
+    pointer-events: none;
+}
+
+/* ─────────────────────────────────────────
+   REFINED GOVERNMENT GRID TAX INVOICE
+   Optimized for A4 single-page PDF capture
+   ───────────────────────────────────────── */
+.invoice-page {
+    width: 800px;
+    height: 1130px;
+    max-height: 1130px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    background: #ffffff;
+    padding: 25px 35px;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #000000;
+    box-sizing: border-box;
+    position: relative;
+    overflow: hidden;
+    text-align: left;
+}
+
+/* Header */
+.invoice-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 3px solid #1B5E20;
+    padding-bottom: 10px;
+    margin-bottom: 12px;
+}
+
+.invoice-brand-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.invoice-logo-wrapper {
+    display: flex;
+    align-items: center;
+}
+
+.invoice-logo {
+    width: 40px;
+    height: 40px;
+    object-fit: contain;
+}
+
+.invoice-title-text {
+    font-size: 26px;
+    font-weight: 900;
+    color: #000000;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+/* Box grids */
+.invoice-grid-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1.5px solid #1B5E20;
+    font-size: 10px;
+    line-height: 1.4;
+    color: #000000;
+    margin-bottom: 10px;
+}
+
+.invoice-grid-table td {
+    border: 1.5px solid #1B5E20;
+    padding: 8px 12px;
+    vertical-align: top;
+}
+
+.section-label {
+    font-size: 9px;
+    font-weight: 800;
+    color: #1B5E20;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    border-bottom: 1px dashed #E5E7EB;
+    padding-bottom: 2px;
+    display: block;
+}
+
+.seller-company-name {
+    display: block;
+    font-size: 11px;
+    font-weight: 800;
+    color: #000000;
+    margin-bottom: 4px;
+}
+
+.seller-address {
+    font-size: 9.5px;
+    color: #000000;
+    margin-bottom: 6px;
+    line-height: 1.3;
+}
+
+/* Nested subtable to perfectly align colons vertically */
+.details-subtable {
+    width: 100%;
+    border-collapse: collapse;
+    border: none !important;
+}
+
+.details-subtable td {
+    border: none !important;
+    padding: 2px 0 !important;
+    font-size: 9.5px;
+    line-height: 1.3;
+    color: #000000;
+}
+
+.details-subtable td.key-seller {
+    font-weight: 700;
+    width: 125px;
+    color: #000000;
+}
+
+.details-subtable td.key-invoice {
+    font-weight: 700;
+    width: 75px;
+    color: #000000;
+}
+
+.details-subtable td.key-order {
+    font-weight: 700;
+    width: 95px;
+    color: #000000;
+}
+
+.details-subtable td.colon {
+    width: 15px;
+    text-align: center;
+    color: #000000;
+}
+
+.details-subtable td.value {
+    color: #000000;
+}
+
+.qr-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    height: 100%;
+}
+
+.qr-graphic-wrapper {
+    border: 1.5px solid #1B5E20;
+    padding: 6px;
+    background: #ffffff;
+    margin-bottom: 6px;
+    display: inline-block;
+    line-height: 0;
+}
+
+.invoice-num-text {
+    font-size: 8.5px;
+    font-weight: 700;
+    color: #000000;
+}
+
+/* Products Table */
+.invoice-items-table {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1.5px solid #1B5E20;
+    font-size: 9px;
+    color: #000000;
+}
+
+.invoice-items-table th {
+    background: #ffffff;
+    color: #000000;
+    font-weight: 800;
+    text-transform: uppercase;
+    font-size: 8px;
+    border: 1.5px solid #1B5E20;
+    padding: 6px 4px;
+    text-align: left;
+}
+
+.invoice-items-table td {
+    border: 1.5px solid #1B5E20;
+    padding: 6px 5px;
+    vertical-align: middle;
+    line-height: 1.2;
+}
+
+.invoice-items-table tbody tr:nth-child(even) {
+    background-color: #FAFDFB; /* very subtle light green tone for elegance */
+}
+
+.product-title {
+    font-weight: 700;
+    color: #000000;
+    display: block;
+}
+
+.product-variant {
+    font-size: 7.5px;
+    color: #000000;
+    display: block;
+    margin-top: 1px;
+}
+
+.invoice-items-table .total-row td {
+    background: #FAFDFB;
+    font-weight: 800;
+    color: #000000;
+}
+
+/* Amount in Words */
+.amount-words-box {
+    border: 1.5px solid #1B5E20;
+    border-top: none;
+    padding: 8px 12px;
+    font-size: 10px;
+    color: #000000;
+    text-align: left;
+    background: #ffffff;
+}
+
+.amount-words-box strong {
+    color: #1B5E20;
+}
+
+/* Bottom signatory table */
+.invoice-grid-table-bottom {
+    width: 100%;
+    border-collapse: collapse;
+    border: 1.5px solid #1B5E20;
+    border-top: none;
+    font-size: 9.5px;
+    color: #000000;
+}
+
+.invoice-grid-table-bottom td {
+    border: 1.5px solid #1B5E20;
+    padding: 8px 12px;
+    vertical-align: middle;
+}
+
+.bottom-company-name {
+    font-size: 10.5px;
+    font-weight: 800;
+    color: #000000;
+    margin-bottom: 6px;
+}
+
+.bottom-identifiers-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4px;
+}
+
+.bottom-id-row {
+    font-size: 9.5px;
+    color: #000000;
+}
+
+.bottom-id-row strong {
+    color: #000000;
+}
+
+.signatory-cell {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+.signature-graphic-box {
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 2px;
+}
+
+.signatory-label-text {
+    font-size: 8.5px;
+    font-weight: 800;
+    color: #000000;
+    text-transform: uppercase;
+}
+
+/* Reverse Charge */
+.reverse-charge-row {
+    border: 1.5px solid #1B5E20;
+    border-top: none;
+    padding: 6px 12px;
+    font-size: 9.5px;
+    color: #000000;
+    background: #FAFDFB;
+    text-align: left;
+}
+
+/* Terms and conditions */
+.terms-box {
+    border: 1.5px solid #1B5E20;
+    border-top: none;
+    padding: 8px 12px;
+    font-size: 8px;
+    color: #000000;
+    line-height: 1.3;
+    text-align: left;
+    background: #ffffff;
+}
+
+.terms-box strong {
+    color: #000000;
+    font-size: 8.5px;
+    display: block;
+    margin-bottom: 3px;
+}
+
+.terms-box ol {
+    margin: 0;
+    padding-left: 12px;
+}
+
+.terms-box li {
+    margin-bottom: 1.5px;
+}
+
+/* Footer disclaimer line */
+.formal-footer-line {
+    font-size: 8.5px;
+    color: #000000;
+    text-align: center;
+    margin-top: 8px;
+    font-weight: 500;
+}

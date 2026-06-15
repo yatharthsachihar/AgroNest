@@ -174,6 +174,7 @@ export default function HeroSection() {
                 key={s._id}
                 className={`hero-slide-thumb${i === current ? " active" : ""}`}
                 onClick={() => goTo(i)}
+                data-title={s.title}
               >
                 <img src={s.image} alt="" loading="lazy" />
                 <div className="hero-slide-thumb-overlay">

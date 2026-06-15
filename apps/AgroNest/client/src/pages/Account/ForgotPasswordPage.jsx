@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="site-root">
       <Navbar />
-      <div className="site-container" style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "40px 20px" }}>
+      <div className="site-container" style={{ minHeight: "70vh", display: "flex", alignItems: "center", justifyContent: "center", padding: "120px 20px 60px" }}>
         
         <div style={{ width: "100%", maxWidth: 450, background: "var(--site-bg)", padding: 40, borderRadius: 16, border: "1px solid var(--site-border)", boxShadow: "0 10px 40px rgba(0,0,0,0.05)" }}>
           
