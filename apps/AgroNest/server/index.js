@@ -58,6 +58,7 @@ mount(app, '/api/seo',        './routes/seoRoutes');
 // System
 mount(app, '/api/settings',   './routes/settingsRoutes');
 mount(app, '/api/logs',       './routes/logsRoute');
+mount(app, '/api/notifications', './routes/notificationRoutes');
 
 // Health check
 app.get('/', (req, res) => res.json({ message: 'AgroNest API running ✅', time: new Date() }));

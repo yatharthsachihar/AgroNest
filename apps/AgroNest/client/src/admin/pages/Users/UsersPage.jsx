@@ -113,8 +113,8 @@ function AdminUserForm({ user, onSuccess }) {
 }
 
 export default function UsersPage() {
-  const { hasPermission } = useAuthStore();
-  const canEdit = hasPermission('users', 'full');
+  const { admin: currentAdmin } = useAuthStore();
+  const canEdit = currentAdmin?.role === 'super_admin' || currentAdmin?.role === 'admin';
   const qc = useQueryClient();
   const [modal,    setModal]    = useState(null);
   const [deleting, setDeleting] = useState(null);

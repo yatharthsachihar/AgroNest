@@ -7,6 +7,8 @@
 @import "./forms.css";
 @import "./modal.css";
 @import "./responsive.css";
+@import "./global-search.css";
+@import "./notifications.css";
 
 /* ── CSS Custom Properties — Dark (default) ── */
 :root {

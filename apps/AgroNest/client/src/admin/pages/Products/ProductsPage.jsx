@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import React, { useState, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useGSAP } from "@gsap/react";
@@ -6,7 +6,7 @@ import gsap from "gsap";
 import toast from "react-hot-toast";
 import {
   FiPlus, FiEdit, FiTrash2, FiPackage,
-  FiDownload, FiRefreshCw
+  FiDownload, FiRefreshCw, FiChevronDown, FiChevronUp
 } from "react-icons/fi";
 
 import { productApi } from "../../../api/productApi";
@@ -31,6 +31,7 @@ export default function ProductsPage() {
   const [statusFilter, setStatusFilter] = useState("");
   const [selected,     setSelected]     = useState([]);
   const [deleteTarget, setDeleteTarget] = useState(null);
+  const [expandedGroup, setExpandedGroup] = useState(null);
   const [page,         setPage]         = useState(1);
   const PER_PAGE = 10;
 
@@ -60,6 +61,10 @@ export default function ProductsPage() {
     },
     onError: () => toast.error("Failed to delete"),
   });
+
+  const toggleExpand = (id) => {
+    setExpandedGroup(expandedGroup === id ? null : id);
+  };
 
   const toggleSelect = (id) =>
     setSelected(prev => prev.includes(id) ? prev.filter(x => x !== id) : [...prev, id]);
@@ -159,7 +164,8 @@ export default function ProductsPage() {
                 </td>
               </tr>
             ) : products.map(p => (
-              <tr key={p._id}>
+              <React.Fragment key={p.parentGroupId || p._id}>
+              <tr>
                 <td className="col-check">
                   <input
                     type="checkbox"
@@ -176,7 +182,14 @@ export default function ProductsPage() {
                       <div className="table-product-img-placeholder"><FiPackage /></div>
                     )}
                     <div>
-                      <div className="table-product-name">{p.name}</div>
+                      <div className="table-product-name" style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                        {p.name}
+                        {p.hasVariations && p.variations?.length > 0 && (
+                          <span className="badge badge-info" style={{ cursor: "pointer" }} onClick={() => toggleExpand(p._id)}>
+                            {p.variations.length} Variations {expandedGroup === p._id ? <FiChevronUp /> : <FiChevronDown />}
+                          </span>
+                        )}
+                      </div>
                       <div className="table-product-meta">{p.slug}</div>
                     </div>
                   </div>
@@ -206,6 +219,35 @@ export default function ProductsPage() {
                   </div>
                 </td>
               </tr>
+              {expandedGroup === p._id && p.variations && (
+                p.variations.map((v, i) => (
+                  <tr key={v._id || i} style={{ background: "var(--site-bg-secondary)" }}>
+                    <td></td>
+                    <td style={{ paddingLeft: 40 }}>
+                      <div className="table-product-name" style={{ fontSize: 13, color: "var(--site-text-muted)" }}>
+                        ↳ {v.weight}
+                      </div>
+                    </td>
+                    <td>—</td>
+                    <td style={{ fontSize: 13 }}>₹{v.price?.toLocaleString()}</td>
+                    <td style={{ fontSize: 13 }}>{v.stock}</td>
+                    <td></td>
+                    <td>
+                      <span className={STATUS_BADGE[p.status] || "badge badge-muted"} style={{ transform: "scale(0.85)" }}>
+                        {p.status}
+                      </span>
+                    </td>
+                    <td>
+                      <div className="table-actions">
+                        <button className="btn-edit" onClick={() => navigate(`/admin/products/edit/${p._id}`)}>
+                          <FiEdit />
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                ))
+              )}
+            </React.Fragment>
             ))}
           </tbody>
         </table>

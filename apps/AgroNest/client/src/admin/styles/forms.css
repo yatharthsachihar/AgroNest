@@ -284,11 +284,130 @@ input:checked + .slider::before { transform: translateX(20px); }
   justify-content: center;
 }
 
-/* Multi-image grid */
+/* Multi-image grid (Legacy) */
 .images-grid {
   display: flex;
   flex-wrap: wrap;
   gap: 12px;
+}
+
+/* Framer Motion Reorder Grid */
+.images-reorder-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 16px;
+  list-style: none;
+  padding: 0;
+}
+
+.reorder-image-item {
+  position: relative;
+  width: 150px;
+  height: 150px;
+  border-radius: 16px;
+  background: var(--card);
+  border: 1px solid var(--border);
+  cursor: grab;
+  list-style: none;
+}
+
+.reorder-image-item:active {
+  cursor: grabbing;
+}
+
+.reorder-image-content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 15px;
+  overflow: hidden;
+  transition: box-shadow 0.2s;
+}
+
+.reorder-image-content.is-main {
+  box-shadow: 0 0 0 3px var(--site-primary, #d6a46a);
+}
+
+.reorder-image-content img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.main-image-badge {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background: rgba(214, 164, 106, 0.95);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 4px 0;
+  z-index: 2;
+}
+
+.order-badge {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 6px;
+  border-radius: 6px;
+  z-index: 2;
+}
+
+.reorder-actions {
+  position: absolute;
+  bottom: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  z-index: 2;
+}
+
+.drag-handle {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+}
+
+.remove-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: rgba(239, 68, 68, 0.9);
+  border: none;
+  color: white;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  backdrop-filter: blur(4px);
+  transition: 0.2s;
+}
+
+.remove-btn:hover {
+  background: rgba(220, 38, 38, 1);
+  transform: scale(1.05);
 }
 
 /* Dash section (page wrapper) */

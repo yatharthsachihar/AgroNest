@@ -116,6 +116,8 @@ const settingsSchema = new mongoose.Schema({
   razorpayMode:      { type: String, default: 'live' },
   razorpayActive:    { type: Boolean, default: true },
 
+  codActive:         { type: Boolean, default: true },
+
   phonepeMerchantId: { type: String, default: '' },
   phonepeSaltKey:    { type: String, default: '' },
   phonepeSaltIndex:  { type: String, default: '1' },
@@ -186,6 +188,9 @@ const settingsSchema = new mongoose.Schema({
   gtmId:     { type: String, default: '' },
   fbPixelId: { type: String, default: '' },
   hotjarId:  { type: String, default: '' },
+
+  // Permission matrix (editable by super_admin via Roles page)
+  permissionMatrix: { type: Array, default: [] },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Settings', settingsSchema);

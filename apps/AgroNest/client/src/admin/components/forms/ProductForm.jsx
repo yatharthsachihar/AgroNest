@@ -13,6 +13,7 @@ import Select from "../common/Select";
 import Button from "../common/Button";
 import Switch from "../common/Switch";
 import FormSection from "./FormSection";
+import ProductImageManager from "./ProductImageManager";
 
 const UNITS = ["kg", "g", "litre", "ml", "piece", "dozen", "quintal", "tonne", "bag", "bundle"];
 
@@ -23,6 +24,7 @@ export default function ProductForm({ product = null }) {
 
   const [images, setImages] = useState(product?.images || []);
   const [specs, setSpecs] = useState(product?.specifications || []);
+  const [variations, setVariations] = useState(product?.variations || []);
   const [flags, setFlags] = useState({
     isFeatured:   product?.isFeatured   || false,
     isTopProduct: product?.isTopProduct || false,
@@ -47,8 +49,8 @@ export default function ProductForm({ product = null }) {
       description:      product?.description      || "",
       category:         product?.category?._id    || product?.category || "",
       price:            product?.price            || "",
+      weight:           product?.weight           || "1kg",
       stock:            product?.stock            || "",
-      unit:             product?.unit             || "kg",
       brand:            product?.brand            || "",
       badge:            product?.badge            || "",
       status:           product?.status           || "active",
@@ -78,7 +80,13 @@ export default function ProductForm({ product = null }) {
   });
 
   const onSubmit = (data) => {
-    mutation.mutate({ ...data, ...flags, images, specifications: specs });
+    mutation.mutate({
+      ...data,
+      ...flags,
+      images,
+      specifications: specs,
+      variations,
+    });
   };
 
   const toggleFlag = (key) => setFlags(prev => ({ ...prev, [key]: !prev[key] }));
@@ -88,17 +96,44 @@ export default function ProductForm({ product = null }) {
   const updateSpec = (i, field, val) =>
     setSpecs(prev => prev.map((s, idx) => idx === i ? { ...s, [field]: val } : s));
 
-  const handleImageURL = (e) => {
-    if (e.key === "Enter") {
-      const url = e.target.value.trim();
-      if (url) { setImages(prev => [...prev, url]); e.target.value = ""; }
-    }
-  };
-
   const categoryOptions = [
     { label: "Select Category", value: "" },
     ...categories.map(c => ({ label: c.name, value: c._id })),
   ];
+
+  // Variations Logic
+  const parseWeight = (w) => {
+    if (!w) return null;
+    const match = String(w).toLowerCase().replace(/\s+/g, '').match(/^([\d.]+)([a-z]+)$/);
+    if (!match) return null;
+    const val = parseFloat(match[1]);
+    const unit = match[2];
+    if (['kg', 'l', 'litre', 'litres'].includes(unit)) return val * 1000;
+    if (['g', 'gm', 'ml'].includes(unit)) return val;
+    return null;
+  };
+
+  const addVariation = () => {
+    setVariations(prev => [...prev, { weight: "", price: "", stock: "", sku: "" }]);
+  };
+  const removeVariation = (i) => setVariations(prev => prev.filter((_, idx) => idx !== i));
+  const updateVariation = (i, field, val) => {
+    setVariations(prev => {
+      const newVars = [...prev];
+      newVars[i] = { ...newVars[i], [field]: val };
+      
+      // Auto-calculate price if weight changes and base weight/price are valid
+      if (field === 'weight' && watch("weight") && watch("price")) {
+        const baseW = parseWeight(watch("weight"));
+        const baseP = parseFloat(watch("price"));
+        const newW = parseWeight(val);
+        if (baseW && baseP && newW && !newVars[i].price) { // Only auto-calc if price is empty
+          newVars[i].price = Math.round((baseP / baseW) * newW);
+        }
+      }
+      return newVars;
+    });
+  };
 
   return (
     <form className="product-form" onSubmit={handleSubmit(onSubmit)}>
@@ -143,16 +178,43 @@ export default function ProductForm({ product = null }) {
             type="number"
             {...register("stock", { min: 0 })}
           />
-          <Select
-            label="Unit"
-            options={UNITS.map(u => ({ label: u, value: u }))}
-            {...register("unit")}
+          <Input
+            label="Base Weight (e.g. 1kg)"
+            required
+            {...register("weight", { required: "Weight is required" })}
           />
         </div>
         <div className="form-grid-2">
           <Input label="Brand" {...register("brand")} />
           <Input label="Badge (e.g. Organic)" {...register("badge")} />
         </div>
+      </FormSection>
+
+      {/* Variations Builder */}
+      <FormSection title="Product Variations">
+        <p style={{ fontSize: 13, color: "var(--site-text-muted)", marginBottom: 16 }}>
+          Adding variations (like 100g, 250g) will automatically attach them to this product. Prices are auto-calculated from the Base Weight/Price but you can override them manually.
+        </p>
+        
+        {variations.length > 0 && (
+          <div style={{ display: "flex", flexDirection: "column", gap: 12, marginBottom: 16 }}>
+            {variations.map((v, i) => (
+              <div key={v._id || i} style={{ 
+                display: "grid", gridTemplateColumns: "1fr 1fr 1fr 1fr auto", gap: 10, 
+                alignItems: "flex-end", background: "var(--site-bg-secondary)", padding: 16, 
+                borderRadius: 12, border: "1px solid var(--site-border)"
+              }}>
+                <Input label="Weight (e.g. 100g)" value={v.weight || ""} onChange={e => updateVariation(i, "weight", e.target.value)} required />
+                <Input label="Price (₹)" type="number" value={v.price} onChange={e => updateVariation(i, "price", e.target.value)} required />
+                <Input label="Stock" type="number" value={v.stock} onChange={e => updateVariation(i, "stock", e.target.value)} />
+                <Input label="SKU" value={v.sku} onChange={e => updateVariation(i, "sku", e.target.value)} />
+                <Button type="button" variant="danger" onClick={() => removeVariation(i)}>Remove</Button>
+              </div>
+            ))}
+          </div>
+        )}
+        
+        <Button type="button" variant="secondary" onClick={addVariation}>+ Add Variation</Button>
       </FormSection>
 
       {/* Category & Status */}
@@ -198,20 +260,7 @@ export default function ProductForm({ product = null }) {
 
       {/* Images */}
       <FormSection title="Product Images">
-        <p style={{ fontSize: 13, color: "var(--text-muted)" }}>
-          Paste an image URL and press Enter to add
-        </p>
-        <Input placeholder="https://example.com/image.jpg — press Enter" onKeyDown={handleImageURL} />
-        {images.length > 0 && (
-          <div className="images-grid">
-            {images.map((url, i) => (
-              <div key={i} className="uploaded-image">
-                <img src={url} alt="" />
-                <button type="button" onClick={() => setImages(prev => prev.filter((_, idx) => idx !== i))}>×</button>
-              </div>
-            ))}
-          </div>
-        )}
+        <ProductImageManager images={images} onChange={setImages} />
       </FormSection>
 
       {/* Specifications */}

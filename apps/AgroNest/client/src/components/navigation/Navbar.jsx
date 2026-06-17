@@ -30,6 +30,7 @@ export default function Navbar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [userMenu, setUserMenu] = useState(false);
+  const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const userMenuRef = useRef(null);
 
   const navigate = useNavigate();
@@ -95,11 +96,14 @@ export default function Navbar() {
     navigate("/");
   };
 
-  const handleDeleteAccount = async () => {
-    const confirmDelete = window.confirm(
-      "⚠️ Are you sure you want to delete your account? This will deactivate your profile and log you out immediately."
-    );
-    if (!confirmDelete) return;
+  const confirmDeleteAccount = () => {
+    setUserMenu(false);
+    setMobileOpen(false);
+    setShowDeleteConfirm(true);
+  };
+
+  const executeDeleteAccount = async () => {
+    setShowDeleteConfirm(false);
 
     try {
       await userApi.deleteMe();
@@ -248,7 +252,7 @@ export default function Navbar() {
                       }}>
                         <FiLogOut size={14} /> Logout
                       </button>
-                      <button onClick={handleDeleteAccount} className="site-delete-account-btn">
+                      <button onClick={confirmDeleteAccount} className="site-delete-account-btn">
                         <FiTrash2 size={14} /> Delete Account
                       </button>
                     </div>
@@ -346,7 +350,7 @@ export default function Navbar() {
                 }}>
                 <FiLogOut size={16} /> Logout
               </button>
-              <button onClick={() => { handleDeleteAccount(); setMobileOpen(false); }}
+              <button onClick={confirmDeleteAccount}
                 className="site-delete-account-btn mobile">
                 <FiTrash2 size={16} /> Delete Account
               </button>
@@ -394,6 +398,61 @@ export default function Navbar() {
         </button>
 
       </div>
+
+      {/* Premium Delete Account Modal */}
+      {showDeleteConfirm && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+          background: "rgba(0,0,0,0.6)", backdropFilter: "blur(5px)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999,
+          padding: 20
+        }}>
+          <div style={{
+            background: "var(--site-card)", borderRadius: 20, width: "100%", maxWidth: 420,
+            overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+            border: "1px solid var(--site-border)", animation: "slideUpFade 0.3s ease-out forwards"
+          }}>
+            <div style={{ padding: "30px 30px 20px", textAlign: "center" }}>
+              <div style={{
+                width: 60, height: 60, background: "rgba(239, 68, 68, 0.1)", color: "#ef4444",
+                borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                margin: "0 auto 20px", fontSize: 24
+              }}>
+                <FiTrash2 />
+              </div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 10px", color: "var(--site-text)" }}>Delete Account?</h2>
+              <p style={{ fontSize: 14, color: "var(--site-text-muted)", lineHeight: 1.6, margin: 0 }}>
+                Are you absolutely sure you want to delete your account? This action will deactivate your profile and log you out immediately.
+              </p>
+            </div>
+            <div style={{
+              padding: "20px 30px", background: "var(--site-bg-secondary)", display: "flex", gap: 12,
+              borderTop: "1px solid var(--site-border)"
+            }}>
+              <button 
+                onClick={() => setShowDeleteConfirm(false)}
+                style={{
+                  flex: 1, padding: "12px 0", borderRadius: 12, border: "1px solid var(--site-border)",
+                  background: "var(--site-card)", color: "var(--site-text)", fontWeight: 600,
+                  cursor: "pointer", fontSize: 14, transition: "0.2s"
+                }}
+              >
+                Cancel
+              </button>
+              <button 
+                onClick={executeDeleteAccount}
+                style={{
+                  flex: 1, padding: "12px 0", borderRadius: 12, border: "none",
+                  background: "#ef4444", color: "white", fontWeight: 600,
+                  cursor: "pointer", fontSize: 14, transition: "0.2s"
+                }}
+              >
+                Yes, Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </header>
   );

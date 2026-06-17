@@ -76,3 +76,29 @@
   margin-top:8px;
   color:var(--text-secondary);
 }
+
+.stat-change{
+  display:flex;
+  align-items:center;
+  gap:4px;
+
+  font-size:13px;
+  font-weight:700;
+
+  padding:4px 10px;
+  border-radius:100px;
+}
+
+.stat-change.positive{
+  color:var(--success);
+  background:rgba(34,197,94,.12);
+}
+
+.stat-change.negative{
+  color:var(--text-muted);
+  background:rgba(127,127,127,.12);
+}
+
+.stat-change svg{
+  font-size:14px;
+}

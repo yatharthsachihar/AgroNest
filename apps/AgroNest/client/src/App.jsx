@@ -11,6 +11,7 @@ import AdminProductCreate       from "./admin/pages/Products/ProductCreatePage";
 import AdminProductEdit         from "./admin/pages/Products/ProductEditPage";
 import AdminCategories          from "./admin/pages/Categories/CategoriesPage";
 import AdminOrders              from "./admin/pages/Orders/OrdersPage";
+import AdminInventory           from "./admin/pages/Inventory/InventoryPage";
 import AdminCustomers           from "./admin/pages/Customers/CustomersPage";
 import AdminCoupons             from "./admin/pages/Coupons/CouponsPage";
 import AdminEnquiries           from "./admin/pages/Enquiries/EnquiriesPage";
@@ -38,6 +39,7 @@ import SiteProductsPage         from "./pages/Products/ProductsPage";
 import SiteProductDetail        from "./pages/Product/ProductDetailPage";
 import SiteCart                 from "./pages/Cart/CartPage";
 import SiteCheckout             from "./pages/Checkout/CheckoutPage";
+import SitePaymentPage          from "./pages/Checkout/PaymentPage";
 import { OrderSuccessPage }     from "./components/checkout/OrderSuccessModel";
 import SiteCategories           from "./pages/Categories/CategoriesPage";
 import BlogPage                 from "./pages/Blog/BlogPage";
@@ -98,6 +100,7 @@ export default function App() {
             <Route path="/products/:slug"   element={<PageGate pageKey="shop"><SiteProductDetail /></PageGate>} />
             <Route path="/cart"             element={<SiteCart />} />
             <Route path="/checkout"         element={<SiteCheckout />} />
+            <Route path="/checkout/payment" element={<SitePaymentPage />} />
             <Route path="/checkout/success" element={<OrderSuccessPage />} />
             <Route path="/categories"       element={<PageGate pageKey="categories"><SiteCategories /></PageGate>} />
             <Route path="/categories/:slug" element={<CategoryRedirect />} />
@@ -125,6 +128,7 @@ export default function App() {
               <Route path="products/create"     element={<AdminProductCreate />} />
               <Route path="products/edit/:id"   element={<AdminProductEdit />} />
               <Route path="categories"          element={<AdminCategories />} />
+              <Route path="inventory"           element={<AdminInventory />} />
               <Route path="orders"              element={<AdminOrders />} />
               <Route path="customers"           element={<AdminCustomers />} />
               <Route path="coupons"             element={<AdminCoupons />} />

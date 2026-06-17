@@ -5,15 +5,17 @@ import Sidebar from "../components/navigation/Sidebar";
 import Topbar  from "../components/navigation/Topbar";
 
 export default function AdminLayout() {
-  const { loading, token, admin, init } = useAuthStore();
+  const { loading, token, admin, init, refreshMatrix } = useAuthStore();
   const navigate = useNavigate();
 
-  useEffect(() => { 
-    init(); 
-    // Poll every 5 seconds to keep admin role and permissions matrix up to date in real time
+  useEffect(() => {
+    init();
+    // Poll only the lightweight permission matrix every 30s so role
+    // changes propagate without re-running the full auth check (which
+    // was toggling `loading` and remounting every admin page every 5s).
     const intervalId = setInterval(() => {
-      init();
-    }, 5000);
+      refreshMatrix();
+    }, 30000);
     return () => clearInterval(intervalId);
   }, []); // eslint-disable-line
 
@@ -24,7 +26,19 @@ export default function AdminLayout() {
     }
   }, [loading, token, navigate]);
 
-  if (loading) return (
+  // Optimistic render: a token already sitting in localStorage means the
+  // user was logged in on their last visit. Render the panel shell (and
+  // let Dashboard/etc start fetching) immediately instead of blocking
+  // everything behind a full-screen spinner while we re-verify that
+  // token with the server. If verification fails, the effect above
+  // redirects to /admin/login once `loading` settles — by then the
+  // panel briefly showed, which is a far better trade-off than every
+  // single refresh paying a guaranteed round-trip of dead time up front.
+  const hasStoredToken = !!localStorage.getItem('agronest_token');
+
+  // Only show the full-screen blocking spinner when there's truly nothing
+  // to optimistically render yet (no token at all, brand-new visit).
+  if (loading && !hasStoredToken) return (
     <div style={{
       display:"flex", alignItems:"center", justifyContent:"center",
       height:"100vh", background:"var(--bg)",
@@ -41,8 +55,9 @@ export default function AdminLayout() {
     </div>
   );
 
-  // Don't render panel at all if no token (redirect already fired)
-  if (!token) return null;
+  // No token anywhere (stored or in state) and we're done loading —
+  // redirect already fired above, render nothing while it happens.
+  if (!loading && !token && !hasStoredToken) return null;
 
   return (
     <div className={`admin-layout role-${admin?.role || 'viewer'}`}>

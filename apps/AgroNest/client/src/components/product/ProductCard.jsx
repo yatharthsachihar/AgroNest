@@ -33,23 +33,45 @@ const ProductCard = React.memo(function ProductCard({ product = {} }) {
     name         = "Agri Product",
     slug,
     category     = { name: "Seeds" },
-    price        = 299,
-    originalPrice,
     rating       = 4.5,
     reviewCount  = 0,
     images       = [],
-    badge, isNew, isOrganic, stock, unit,
+    badge, isNew, isOrganic, unit,
   } = product;
+
+  // Combine base product + variations for the UI selector
+  const allOptions = React.useMemo(() => {
+    const opts = [];
+    if (product.weight) {
+      opts.push({
+        _id: product._id || "base",
+        weight: product.weight,
+        price: product.price,
+        originalPrice: product.originalPrice,
+        stock: product.stock,
+        sku: product.sku
+      });
+    }
+    if (product.variations && product.variations.length > 0) {
+      opts.push(...product.variations);
+    }
+    return opts;
+  }, [product]);
+
+  const [selectedVar, setSelectedVar] = useState(() => allOptions[0] || product);
+
+  const price = selectedVar?.price || product.price || 299;
+  const originalPrice = selectedVar?.originalPrice || product.originalPrice;
 
   const discountPct = originalPrice ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
   const img = images?.[0] || `https://placehold.co/400x400/E8F5EC/1F7A3D?text=${encodeURIComponent(name.slice(0,10))}`;
-  const link = `/products/${slug || _id}`;
+  const link = `/products/${product.parentGroupId || slug || _id}`;
 
   const handleAddToCart = useCallback((e) => {
     e.preventDefault();
-    addToCart(product, 1);
-    toast.success(`${name.slice(0,25)}… added to cart`);
-  }, [addToCart, product, name]);
+    addToCart(selectedVar, 1);
+    toast.success(`${name.slice(0,25)}… ${selectedVar.weight ? '('+selectedVar.weight+')' : ''} added to cart`);
+  }, [addToCart, selectedVar, name]);
 
   const handleEnquire = useCallback((e) => {
     e.preventDefault();
@@ -114,6 +136,28 @@ const ProductCard = React.memo(function ProductCard({ product = {} }) {
         ) : (
           <div className="site-product-card-quote-label">
             <FiMessageCircle size={13} /> Request Quote
+          </div>
+        )}
+
+        {/* Variation Selector Inline */}
+        {product.hasVariations && allOptions.length > 1 && (
+          <div style={{ marginTop: 8, display: "flex", gap: 6, flexWrap: "wrap" }}>
+            {allOptions.map(v => (
+              <button 
+                key={v._id} 
+                onClick={(e) => { e.preventDefault(); setSelectedVar(v); }}
+                style={{
+                  padding: "4px 8px", fontSize: 11, borderRadius: 4, cursor: "pointer",
+                  border: selectedVar._id === v._id ? "1px solid var(--site-primary)" : "1px solid var(--site-border)",
+                  background: selectedVar._id === v._id ? "var(--site-primary-light)" : "transparent",
+                  color: selectedVar._id === v._id ? "var(--site-primary-dark)" : "var(--site-text)",
+                  fontWeight: selectedVar._id === v._id ? 600 : 400,
+                  transition: "all 0.2s"
+                }}
+              >
+                {v.weight}
+              </button>
+            ))}
           </div>
         )}
       </div>

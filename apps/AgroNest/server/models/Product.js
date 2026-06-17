@@ -11,6 +11,16 @@ const productSchema = new mongoose.Schema({
   stock: { type: Number, default: 0 },
   unit: { type: String, default: 'kg' },
   specifications: [{ key: String, value: String }],
+  // Variation Fields
+  weight: { type: String, default: '' },
+  hasVariations: { type: Boolean, default: false },
+  variations: [{
+    weight: { type: String, required: true },
+    price: { type: Number, required: true },
+    stock: { type: Number, default: 0 },
+    sku: { type: String, default: '' },
+  }],
+
   // Visibility flags — admin controls these
   visibleInB2B: { type: Boolean, default: true },
   visibleInB2C: { type: Boolean, default: true },
@@ -24,6 +34,11 @@ const productSchema = new mongoose.Schema({
   status: { type: String, enum: ['active', 'inactive'], default: 'active' },
   badge: { type: String, default: '' },
   brand: { type: String, default: '' },
+  // Inventory fields
+  sku:               { type: String, default: '' },
+  lowStockThreshold: { type: Number, default: 10 },
+  warehouseLocation: { type: String, default: '' },
+  trackInventory:    { type: Boolean, default: true },
 }, { timestamps: true });
 
 module.exports = mongoose.model('Product', productSchema);

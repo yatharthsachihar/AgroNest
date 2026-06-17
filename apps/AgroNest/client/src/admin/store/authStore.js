@@ -26,17 +26,47 @@ export const useAuthStore = create((set, get) => ({
       return;
     }
     try {
-      const res = await API.get('/auth/me');
-      let matrixRes = { data: [] };
-      try {
-        matrixRes = await API.get('/roles/matrix');
-      } catch (err) {
-        console.warn('Failed to load permission matrix', err);
-      }
-      set({ admin: res.data, matrix: matrixRes.data, token, loading: false });
+      // Run both requests in parallel instead of sequentially — this was
+      // previously awaiting /auth/me, then only AFTER it resolved kicking
+      // off /roles/matrix. That serial round-trip was the single biggest
+      // contributor to the delay before the admin panel (sidebar, topbar,
+      // dashboard) appeared at all on every hard refresh.
+      const [meRes, matrixRes] = await Promise.allSettled([
+        API.get('/auth/me'),
+        API.get('/roles/matrix'),
+      ]);
+
+      if (meRes.status !== 'fulfilled') throw meRes.reason;
+
+      set({
+        admin:   meRes.value.data,
+        matrix:  matrixRes.status === 'fulfilled' ? matrixRes.value.data : [],
+        token,
+        loading: false,
+      });
     } catch {
       localStorage.removeItem('agronest_token');
       set({ admin: null, matrix: [], token: null, loading: false });
+    }
+  },
+
+  // Silent background refresh — only updates the permission matrix.
+  // Does NOT touch loading/admin, so it never re-triggers entrance
+  // animations or layout remounts on pages that depend on those.
+  refreshMatrix: async () => {
+    const { token, matrix } = get();
+    if (!token) return;
+    try {
+      const matrixRes = await API.get('/roles/matrix');
+      const next = matrixRes.data;
+      // Only update state if the matrix actually changed — avoids
+      // pointless re-renders on every poll tick.
+      if (JSON.stringify(next) !== JSON.stringify(matrix)) {
+        set({ matrix: next });
+      }
+    } catch (err) {
+      // Silent — a failed background poll shouldn't log the admin out
+      // or disrupt whatever page they're on.
     }
   },
 

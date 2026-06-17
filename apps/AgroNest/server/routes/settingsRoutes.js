@@ -43,7 +43,7 @@ router.put('/', async (req, res) => {
       'showBestSellers','showBrandsSection','showTestimonials','showBlogSection','showNewsletter',
       'razorpayKey','razorpaySecret','razorpayWebhookSecret','razorpayMode','razorpayActive',
       'phonepeMerchantId','phonepeSaltKey','phonepeSaltIndex','phonepeEnv','phonepeActive',
-      'freeShippingAbove','taxRate',
+      'codActive','freeShippingAbove','taxRate',
       'smtpEnabled','smtpFromName','smtpFromEmail',
       'cloudinaryEnabled','cloudinaryCloudName','cloudinaryApiKey','cloudinaryApiSecret','cloudinaryUploadPreset',
       'whatsappEnabled','whatsappNumber','whatsappApiToken',

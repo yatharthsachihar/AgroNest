@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const Product  = require('../models/Product');
 const jwt      = require('jsonwebtoken');
 const router   = express.Router();
+const sseManager = require('../utils/sse');
 
 // ── Soft auth: attach admin info if token present, don't block if missing ──
 const softAuth = (req, res, next) => {
@@ -82,6 +83,91 @@ router.get('/', softAuth, async (req, res) => {
   }
 });
 
+
+
+// ─────────────────────────────────────────────────
+// POST /api/products — create (admin only)
+// ─────────────────────────────────────────────────
+router.post('/bulk-delete', protect, async (req, res) => {
+  try {
+    await Product.deleteMany({ _id: { $in: req.body.ids } });
+    res.json({ message: 'Products deleted' });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+});
+
+router.post('/', protect, async (req, res) => {
+  try {
+    const { variations, ...productData } = req.body;
+    
+    if (variations && variations.length > 0) {
+      productData.hasVariations = true;
+      productData.variations = variations;
+    }
+
+    const product = await Product.create(productData);
+    
+    sseManager.dispatch({
+      type: 'product',
+      title: 'New Product Added',
+      message: `${product.name} has been added to the catalog.`,
+      referenceId: product._id,
+      referenceType: 'Product'
+    });
+
+    res.status(201).json(product);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
+// ─────────────────────────────────────────────────
+// PATCH /api/products/:id/stock — quick stock update
+// ─────────────────────────────────────────────────
+router.patch('/:id/stock', protect, async (req, res) => {
+  try {
+    const { stock, lowStockThreshold, warehouseLocation, sku, trackInventory } = req.body;
+    const update = {};
+    if (stock              !== undefined) update.stock              = Number(stock);
+    if (lowStockThreshold  !== undefined) update.lowStockThreshold  = Number(lowStockThreshold);
+    if (warehouseLocation  !== undefined) update.warehouseLocation  = warehouseLocation;
+    if (sku                !== undefined) update.sku                = sku;
+    if (trackInventory     !== undefined) update.trackInventory     = trackInventory;
+
+    const product = await Product.findByIdAndUpdate(
+      req.params.id, update, { new: true }
+    ).populate('category', 'name slug');
+
+    if (!product) return res.status(404).json({ message: 'Product not found' });
+
+    // Stock alert logic
+    if (stock !== undefined) {
+      if (product.stock === 0) {
+        sseManager.dispatch({
+          type: 'inventory',
+          title: 'Out of Stock',
+          message: `${product.name} is now out of stock.`,
+          referenceId: product._id,
+          referenceType: 'Product'
+        });
+      } else if (product.stock <= product.lowStockThreshold) {
+        sseManager.dispatch({
+          type: 'inventory',
+          title: 'Low Stock Alert',
+          message: `${product.name} has dropped to ${product.stock} units.`,
+          referenceId: product._id,
+          referenceType: 'Product'
+        });
+      }
+    }
+
+    res.json(product);
+  } catch (err) {
+    res.status(400).json({ message: err.message });
+  }
+});
+
 // ─────────────────────────────────────────────────
 // GET /api/products/:slugOrId  — single product
 // ─────────────────────────────────────────────────
@@ -101,39 +187,50 @@ router.get('/:slugOrId', async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────
-// POST /api/products — create (admin only)
-// ─────────────────────────────────────────────────
-router.post('/bulk-delete', protect, async (req, res) => {
-  try {
-    await Product.deleteMany({ _id: { $in: req.body.ids } });
-    res.json({ message: 'Products deleted' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
-  }
-});
-
-router.post('/', protect, async (req, res) => {
-  try {
-    const product = await Product.create(req.body);
-    res.status(201).json(product);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-});
-
-// ─────────────────────────────────────────────────
 // PUT /api/products/:id — update (admin only)
 // ─────────────────────────────────────────────────
 router.put('/:id', protect, async (req, res) => {
   try {
+    const { variations, ...productData } = req.body;
+    
+    if (variations && variations.length > 0) {
+      productData.hasVariations = true;
+      productData.variations = variations;
+    } else {
+      productData.hasVariations = false;
+      productData.variations = [];
+    }
+
     const product = await Product.findByIdAndUpdate(
       req.params.id,
-      req.body,
+      productData,
       { new: true, runValidators: true }
     ).populate('category', 'name slug');
 
     if (!product) return res.status(404).json({ message: 'Product not found' });
-    res.json(product);
+
+    // Stock alert logic for full updates
+    if (req.body.stock !== undefined && !product.hasVariations) {
+      if (product.stock === 0) {
+        sseManager.dispatch({
+          type: 'inventory',
+          title: 'Out of Stock',
+          message: `${product.name} is now out of stock.`,
+          referenceId: product._id,
+          referenceType: 'Product'
+        });
+      } else if (product.stock <= product.lowStockThreshold) {
+        sseManager.dispatch({
+          type: 'inventory',
+          title: 'Low Stock Alert',
+          message: `${product.name} has dropped to ${product.stock} units.`,
+          referenceId: product._id,
+          referenceType: 'Product'
+        });
+      }
+    }
+
+    return res.json(product);
   } catch (err) {
     res.status(400).json({ message: err.message });
   }
@@ -146,6 +243,14 @@ router.delete('/:id', protect, async (req, res) => {
   try {
     const product = await Product.findByIdAndDelete(req.params.id);
     if (!product) return res.status(404).json({ message: 'Product not found' });
+    
+    // Dispatch Notification
+    sseManager.dispatch({
+      type: 'product',
+      title: 'Product Deleted',
+      message: `${product.name} was removed from the catalog.`,
+    });
+
     res.json({ message: 'Product deleted' });
   } catch (err) {
     res.status(500).json({ message: err.message });

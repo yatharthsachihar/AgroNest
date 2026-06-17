@@ -8,7 +8,7 @@ import {
   FiChevronDown, FiChevronRight, FiMenu
 } from "react-icons/fi";
 
-const MENU = [
+export const MENU = [
   {
     title: "Overview",
     items: [
@@ -20,6 +20,7 @@ const MENU = [
     items: [
       { icon: <FiPackage />,      label: "Products",        path: "/admin/products"      },
       { icon: <FiGrid />,         label: "Categories",      path: "/admin/categories"    },
+      { icon: <FiLayers />,       label: "Inventory",       path: "/admin/inventory"     },
     ],
   },
   {

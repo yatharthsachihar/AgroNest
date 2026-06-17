@@ -13,6 +13,7 @@ import {
 
 import { useDashboardStore } from "../../store/dashboardStore";
 import StatCard from "../../components/cards/StatCard";
+import Skeleton from "../../components/common/Skeleton";
 
 const ORDER_STATUS_COLOR = {
   pending:   "#f59e0b",
@@ -40,15 +41,33 @@ const CustomTooltip = ({ active, payload, label }) => {
 export default function DashboardPage() {
   const navigate          = useNavigate();
   const dashboardRef      = useRef();
-  const { stats, revenueChart, ordersChart, recentOrders, topProducts, loading, fetchDashboard } =
+  const { stats, revenueChart, ordersChart, recentOrders, topProducts, loading, hasLoaded, fetchDashboard } =
     useDashboardStore();
 
   useEffect(() => { fetchDashboard(); }, [fetchDashboard]);
 
+  // Animate in only once real data has arrived at least once. Gating on
+  // `hasLoaded` (not `loading`) matters because `loading` starts out
+  // false before the very first fetch has even kicked off — if we
+  // animated on that, GSAP would fade in the empty "—" placeholders and
+  // empty-state charts, then React would silently swap in real data a
+  // moment later with no animation, which is exactly what looked like
+  // the dashboard "freezing" / not loading properly.
   useGSAP(() => {
-    gsap.from(".stat-card",{ opacity: 1, y: 40, stagger: 0.08, duration: 0.7, ease: "power3.out" });
-    gsap.from(".dashboard-widget",{ opacity: 1, y: 50, stagger: 0.1,  duration: 0.8, delay: 0.2, ease: "power3.out" });
-  }, { scope: dashboardRef, dependencies: [loading] });
+    if (!hasLoaded) return;
+
+    const tl = gsap.timeline({
+      defaults: { ease: "power3.out", clearProps: "opacity,transform" },
+    });
+    tl.from(".stat-card",       { opacity: 0, y: 40, stagger: 0.08, duration: 0.7 })
+      .from(".dashboard-widget", { opacity: 0, y: 50, stagger: 0.1,  duration: 0.8 }, "-=0.4");
+
+    // Safety net: if the component unmounts mid-tween (fast nav away),
+    // make sure nothing is left stuck at a partial opacity for next time.
+    return () => {
+      gsap.set(".stat-card, .dashboard-widget", { clearProps: "opacity,transform" });
+    };
+  }, { scope: dashboardRef, dependencies: [hasLoaded] });
 
   const statCards = [
     { title: "Total Revenue",  value: stats ? `₹${stats.totalRevenue.toLocaleString()}` : "—", change: "+12.4%", icon: <FiDollarSign /> },
@@ -63,6 +82,34 @@ export default function DashboardPage() {
     { label: "Analytics",     icon: <FiBarChart2 />, action: () => navigate("/admin/analytics") },
     { label: "Add Category",  icon: <FiPlus />,     action: () => navigate("/admin/categories") },
   ];
+
+  // Show skeletons until the very first fetch resolves, instead of
+  // rendering empty "—" stat cards and empty-state charts that GSAP
+  // would otherwise fade in and then get silently replaced by real data.
+  if (!hasLoaded) {
+    return (
+      <div className="dashboard-page">
+        <div className="dashboard-header">
+          <div>
+            <h1>Dashboard</h1>
+            <p>Welcome back — here's what's happening today</p>
+          </div>
+        </div>
+        <div className="stats-grid">
+          {Array.from({ length: 4 }).map((_, i) => (
+            <Skeleton key={i} height={140} radius={20} />
+          ))}
+        </div>
+        <div className="dashboard-grid">
+          <Skeleton height={400} radius={24} className="large" />
+          <Skeleton height={280} radius={24} />
+          <Skeleton height={280} radius={24} />
+          <Skeleton height={280} radius={24} />
+          <Skeleton height={280} radius={24} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div ref={dashboardRef} className="dashboard-page">

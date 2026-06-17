@@ -3,6 +3,7 @@ const jwt     = require('jsonwebtoken');
 const User    = require('../models/User');
 const Admin   = require('../models/Admin');
 const router  = express.Router();
+const sseManager = require('../utils/sse');
 
 const sign = (id) =>
   jwt.sign({ id, type: 'user' }, process.env.JWT_SECRET, { expiresIn: '30d' });
@@ -55,6 +56,16 @@ router.post('/register', async (req, res) => {
     });
 
     const token = sign(user._id);
+
+    // Dispatch notification
+    sseManager.dispatch({
+      type: 'customer',
+      title: 'New Customer Registered',
+      message: `${fullName} created an account.`,
+      referenceId: user._id,
+      referenceType: 'User'
+    });
+
     res.status(201).json({ token, user: user.toPublic() });
   } catch (err) {
     console.error('[Register]', err.message);
@@ -87,6 +98,16 @@ router.post('/login', async (req, res) => {
         return res.status(403).json({ message: 'Your account has been deactivated. Contact support.' });
 
       const token = sign(user._id);
+      
+      // Dispatch notification
+      sseManager.dispatch({
+        type: 'customer',
+        title: 'Customer Logged In',
+        message: `${user.fullName} logged into their account.`,
+        referenceId: user._id,
+        referenceType: 'User'
+      });
+
       return res.json({ token, user: user.toPublic() });
     }
 
@@ -140,7 +161,17 @@ router.put('/me', require('../middleware/userAuthMiddleware').protectUser, async
 // DELETE /api/users/me — self-deactivate own account
 router.delete('/me', require('../middleware/userAuthMiddleware').protectUser, async (req, res) => {
   try {
-    await User.findByIdAndUpdate(req.user._id, { isActive: false });
+    const user = await User.findByIdAndUpdate(req.user._id, { isActive: false });
+    
+    // Dispatch notification to admin
+    sseManager.dispatch({
+      type: 'customer',
+      title: 'Account Deleted',
+      message: `${user.fullName} has deleted/deactivated their account.`,
+      referenceId: user._id,
+      referenceType: 'User'
+    });
+
     res.json({ message: 'Your account has been deactivated successfully.' });
   } catch (err) {
     res.status(500).json({ message: err.message });

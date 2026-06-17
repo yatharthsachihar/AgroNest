@@ -16,6 +16,8 @@ export default function ProductDetail() {
   const { showPrice, showCart, showEnquiry } = useSettings();
   const { addToCart } = useCart();
   const [product, setProduct] = useState(null);
+  const [variations, setVariations] = useState([]);
+  const [selectedVariation, setSelectedVariation] = useState(null);
   const [loading, setLoading] = useState(true);
   const [activeImg, setActiveImg] = useState(0);
   const [qty, setQty] = useState(1);
@@ -26,7 +28,29 @@ export default function ProductDetail() {
 
   useEffect(() => {
     API.get(`/products/${slug}`)
-      .then(r => setProduct(r.data))
+      .then((r) => {
+        const prod = r.data;
+        if (prod) {
+          setProduct(prod);
+          if (prod.hasVariations && prod.variations?.length > 0) {
+            const allOpts = [{
+              _id: prod._id || "base",
+              weight: prod.weight,
+              price: prod.price,
+              originalPrice: prod.originalPrice,
+              stock: prod.stock,
+              sku: prod.sku
+            }, ...prod.variations];
+            setVariations(allOpts);
+            setSelectedVariation(allOpts[0]);
+          } else {
+            setVariations([]);
+            setSelectedVariation(null);
+          }
+        } else {
+          setProduct(null);
+        }
+      })
       .catch(() => setProduct(null))
       .finally(() => setLoading(false));
   }, [slug]);
@@ -71,12 +95,16 @@ export default function ProductDetail() {
     </div>
   );
 
-  const images = product.images?.length
+  const displayProduct = selectedVariation || product;
+
+  const images = displayProduct.images?.length
+    ? displayProduct.images
+    : product.images?.length
     ? product.images
     : [`https://placehold.co/600x600/E8F5EC/1F7A3D?text=${encodeURIComponent(product.name.slice(0,14))}`];
 
-  const discount = product.originalPrice
-    ? Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)
+  const discount = displayProduct.originalPrice
+    ? Math.round(((displayProduct.originalPrice - displayProduct.price) / displayProduct.originalPrice) * 100)
     : 0;
 
   return (
@@ -130,10 +158,10 @@ export default function ProductDetail() {
               {/* Price — shown based on store mode */}
               {showPrice ? (
                 <div className="pd-price-block">
-                  <span className="pd-price">₹{product.price?.toLocaleString("en-IN")}</span>
-                  {product.originalPrice && (
+                  <span className="pd-price">₹{displayProduct.price?.toLocaleString("en-IN")}</span>
+                  {displayProduct.originalPrice && (
                     <>
-                      <span className="pd-price-original">₹{product.originalPrice?.toLocaleString("en-IN")}</span>
+                      <span className="pd-price-original">₹{displayProduct.originalPrice?.toLocaleString("en-IN")}</span>
                       <span className="pd-price-off">{discount}% off</span>
                     </>
                   )}
@@ -144,15 +172,47 @@ export default function ProductDetail() {
                 </div>
               )}
 
+              {product.hasVariations && product.variations?.length > 0 && (
+                <div style={{ marginTop: 20, marginBottom: 20 }}>
+                  <div style={{ fontWeight: 600, marginBottom: 10, color: "var(--site-text)" }}>Choose Option:</div>
+                  <div style={{ display: "flex", flexWrap: "wrap", gap: 10 }}>
+                    {variations.map(v => (
+                      <button
+                        key={v._id}
+                        onClick={() => setSelectedVariation(v)}
+                        style={{
+                          padding: "8px 16px",
+                          borderRadius: 8,
+                          border: `1px solid ${selectedVariation?._id === v._id ? 'var(--site-primary)' : 'var(--site-border)'}`,
+                          background: selectedVariation?._id === v._id ? 'var(--site-primary-light)' : 'transparent',
+                          color: selectedVariation?._id === v._id ? 'var(--site-primary-dark)' : 'var(--site-text)',
+                          fontWeight: selectedVariation?._id === v._id ? 600 : 400,
+                          cursor: "pointer",
+                          transition: "all 0.2s"
+                        }}
+                      >
+                        {v.weight}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
               <p className="pd-desc">{product.shortDescription || product.description}</p>
 
               <div className="pd-b2b-meta">
                 <div className="pd-meta-row">
                   <span className="pd-meta-label">Availability:</span>
-                  <span className={`pd-stock ${product.stock > 0 ? 'in' : 'out'}`}>
-                    {product.stock > 0 ? `In Stock (${product.stock} ${product.unit || ''})` : 'Out of Stock'}
+                  <span className={`pd-stock ${displayProduct.stock > 0 ? 'in' : 'out'}`}>
+                    {displayProduct.stock > 0 ? `In Stock (${displayProduct.stock} ${displayProduct.unit || ''})` : 'Out of Stock'}
                   </span>
                 </div>
+                {displayProduct.sku && (
+                  <div className="pd-meta-row">
+                    <span className="pd-meta-label">SKU:</span>
+                    <span>{displayProduct.sku}</span>
+                  </div>
+                )}
                 {product.brand && (
                   <div className="pd-meta-row">
                     <span className="pd-meta-label">Brand:</span>
@@ -166,10 +226,6 @@ export default function ProductDetail() {
                 <div className="pd-meta-row">
                   <span className="pd-meta-label">Origin:</span>
                   <span>India</span>
-                </div>
-                <div className="pd-meta-row">
-                  <span className="pd-meta-label">HSN Code:</span>
-                  <span>{Math.floor(1000 + Math.random() * 9000)} (Mocked)</span>
                 </div>
               </div>
 
@@ -186,13 +242,13 @@ export default function ProductDetail() {
                       </div>
                     </div>
                     <button className="pd-btn-cart" onClick={() => {
-                      addToCart(product, qty);
-                      toast.success(`${product.name} added to cart`);
+                      addToCart(displayProduct, qty);
+                      toast.success(`${displayProduct.name} ${displayProduct.weight && product.hasVariations ? '('+displayProduct.weight+')' : ''} added to cart`);
                     }}>
                       <FiShoppingCart /> Add to Cart
                     </button>
                     <button className="pd-btn-buy" onClick={() => {
-                      addToCart(product, qty);
+                      addToCart(displayProduct, qty);
                       navigate("/checkout");
                     }}>Buy Now</button>
                   </div>

@@ -574,6 +574,12 @@ export default function SettingsPage() {
           
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 24, marginBottom: 28 }}>
             <Toggle
+              label="Enable Cash on Delivery (COD)"
+              hint="Allow customers to pay in cash upon receiving their order"
+              checked={form.codActive ?? true}
+              onChange={val => set("codActive", val)}
+            />
+            <Toggle
               label="Enable Razorpay Gateway"
               hint="Allow clients to pay using Cards, UPI, Netbanking via Razorpay"
               checked={form.razorpayActive ?? true}

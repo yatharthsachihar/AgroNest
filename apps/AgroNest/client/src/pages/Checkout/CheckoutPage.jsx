@@ -46,19 +46,25 @@ export default function CheckoutPage() {
     defaultValues: { paymentMethod: "COD" },
   });
 
+  const [formInitialized, setFormInitialized] = useState(false);
+
   // Prefill Form with User Data
   useEffect(() => {
-    if (user) {
+    if (user && !formInitialized) {
+      const defaultPayment = (settings.codActive !== false) ? "COD" : 
+                             ((settings.razorpayActive !== false) ? "Razorpay" : 
+                             ((settings.phonepeActive !== false) ? "PhonePe" : "COD"));
       reset({
         customerName: user.fullName || "",
         customerEmail: user.email || "",
         customerPhone: user.mobile || "",
         state: user.state || "",
         city: user.city || "",
-        paymentMethod: "COD"
+        paymentMethod: defaultPayment
       });
+      setFormInitialized(true);
     }
-  }, [user, reset]);
+  }, [user, reset, settings, formInitialized]);
 
   if (userLoading || !user) {
     return (
@@ -73,14 +79,20 @@ export default function CheckoutPage() {
     );
   }
 
-  const paymentOptions = [
-    { value: "COD", label: "Cash on Delivery", icon: "💵" }
-  ];
+  const paymentOptions = [];
+  if (settings.codActive !== false) {
+    paymentOptions.push({ value: "COD", label: "Cash on Delivery", icon: "💵" });
+  }
   if (settings.razorpayActive !== false) {
     paymentOptions.push({ value: "Razorpay", label: "Online via Razorpay", icon: "💳" });
   }
   if (settings.phonepeActive !== false) {
     paymentOptions.push({ value: "PhonePe", label: "Online via PhonePe", icon: "📱" });
+  }
+  
+  // Fallback in case all payment methods are mistakenly disabled in settings
+  if (paymentOptions.length === 0) {
+    paymentOptions.push({ value: "COD", label: "Cash on Delivery", icon: "💵" });
   }
 
   let discountAmount = 0;
@@ -155,7 +167,7 @@ export default function CheckoutPage() {
         navigate(`/checkout/payment?orderId=${order._id}`);
       }
     } catch (err) {
-      toast.error(err.message || "Failed to place order");
+      toast.error(err.response?.data?.message || err.message || "Failed to place order");
     } finally {
       setLoading(false);
     }
@@ -200,8 +212,8 @@ export default function CheckoutPage() {
 
           <div className="checkout-layout">
             <div className="checkout-main">
-              {step === 1 && (
-                <form onSubmit={handleSubmit(() => setStep(2))}>
+              <form onSubmit={handleSubmit(step === 1 ? () => setStep(2) : placeOrder)}>
+                <div style={{ display: step === 1 ? 'block' : 'none' }}>
                   <div className="checkout-card">
                     <h3>Contact Information</h3>
                     <div className="checkout-grid">
@@ -270,11 +282,9 @@ export default function CheckoutPage() {
                   <button type="submit" className="site-btn-primary" style={{ width:"100%", justifyContent:"center" }}>
                     Review Order →
                   </button>
-                </form>
-              )}
+                </div>
 
-              {step === 2 && (
-                <div>
+                <div style={{ display: step === 2 ? 'block' : 'none' }}>
                   <div className="checkout-card">
                     <h3>Order Review</h3>
                     {cart.map(item => (
@@ -295,14 +305,13 @@ export default function CheckoutPage() {
                     </p>
                   </div>
                   <div style={{ display:"flex", gap:12 }}>
-                    <button className="site-btn-secondary" onClick={() => setStep(1)}>← Edit Details</button>
-                    <button className="site-btn-primary" style={{ flex:1, justifyContent:"center" }}
-                      onClick={handleSubmit(placeOrder)} disabled={loading}>
+                    <button type="button" className="site-btn-secondary" onClick={() => setStep(1)}>← Edit Details</button>
+                    <button type="submit" className="site-btn-primary" style={{ flex:1, justifyContent:"center" }} disabled={loading}>
                       {loading ? "Placing Order…" : "Place Order →"}
                     </button>
                   </div>
                 </div>
-              )}
+              </form>
             </div>
 
             {/* Order Summary Sidebar */}

@@ -15,6 +15,7 @@ export default function OrdersHistoryPage() {
   const [ordersLoading, setOrdersLoading] = useState(true);
   const [expandedOrder, setExpandedOrder] = useState(null);
   const [cancellingId, setCancellingId] = useState(null);
+  const [showCancelConfirm, setShowCancelConfirm] = useState(null);
 
   useEffect(() => {
     if (!loading && !user) {
@@ -42,10 +43,13 @@ export default function OrdersHistoryPage() {
     setExpandedOrder(expandedOrder === orderId ? null : orderId);
   };
 
-  const handleCancelOrder = async (orderId) => {
-    if (!window.confirm("Are you sure you want to cancel this pending order? This action cannot be undone.")) {
-      return;
-    }
+  const confirmCancelOrder = (orderId) => {
+    setShowCancelConfirm(orderId);
+  };
+
+  const executeCancelOrder = async () => {
+    const orderId = showCancelConfirm;
+    setShowCancelConfirm(null);
     setCancellingId(orderId);
     try {
       await orderApi.cancel(orderId);
@@ -262,7 +266,7 @@ export default function OrdersHistoryPage() {
                             <div style={{ display: "flex", justifyContent: "flex-end", marginTop: 20 }}>
                               <button 
                                 disabled={cancellingId === order._id}
-                                onClick={() => handleCancelOrder(order._id)}
+                                onClick={() => confirmCancelOrder(order._id)}
                                 style={{ 
                                   background: "none",
                                   border: "1.5px solid var(--site-red, #dc2626)",
@@ -316,6 +320,62 @@ export default function OrdersHistoryPage() {
 
         </div>
       </div>
+
+      {/* Premium Cancel Order Modal */}
+      {showCancelConfirm && (
+        <div style={{
+          position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+          background: "rgba(0,0,0,0.6)", backdropFilter: "blur(5px)",
+          display: "flex", alignItems: "center", justifyContent: "center", zIndex: 9999,
+          padding: 20
+        }}>
+          <div style={{
+            background: "var(--site-card)", borderRadius: 20, width: "100%", maxWidth: 420,
+            overflow: "hidden", boxShadow: "0 20px 40px rgba(0,0,0,0.2)",
+            border: "1px solid var(--site-border)", animation: "slideUpFade 0.3s ease-out forwards"
+          }}>
+            <div style={{ padding: "30px 30px 20px", textAlign: "center" }}>
+              <div style={{
+                width: 60, height: 60, background: "rgba(234, 179, 8, 0.1)", color: "#ca8a04",
+                borderRadius: "50%", display: "flex", alignItems: "center", justifyContent: "center",
+                margin: "0 auto 20px", fontSize: 24
+              }}>
+                <FiClock />
+              </div>
+              <h2 style={{ fontSize: 22, fontWeight: 700, margin: "0 0 10px", color: "var(--site-text)" }}>Cancel Order?</h2>
+              <p style={{ fontSize: 14, color: "var(--site-text-muted)", lineHeight: 1.6, margin: 0 }}>
+                Are you sure you want to cancel this pending order? This action cannot be undone.
+              </p>
+            </div>
+            <div style={{
+              padding: "20px 30px", background: "var(--site-bg-secondary)", display: "flex", gap: 12,
+              borderTop: "1px solid var(--site-border)"
+            }}>
+              <button 
+                onClick={() => setShowCancelConfirm(null)}
+                style={{
+                  flex: 1, padding: "12px 0", borderRadius: 12, border: "1px solid var(--site-border)",
+                  background: "var(--site-card)", color: "var(--site-text)", fontWeight: 600,
+                  cursor: "pointer", fontSize: 14, transition: "0.2s"
+                }}
+              >
+                Go Back
+              </button>
+              <button 
+                onClick={executeCancelOrder}
+                style={{
+                  flex: 1, padding: "12px 0", borderRadius: 12, border: "none",
+                  background: "#ca8a04", color: "white", fontWeight: 600,
+                  cursor: "pointer", fontSize: 14, transition: "0.2s"
+                }}
+              >
+                Yes, Cancel Order
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <Footer />
     </div>
   );

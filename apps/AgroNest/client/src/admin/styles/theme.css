@@ -64,3 +64,24 @@ body{
 ::-webkit-scrollbar-thumb:hover{
   background:var(--primary);
 }
+
+/* ── Skeleton loaders ──
+   Used by Skeleton.jsx across Dashboard, Products, Banners, Categories,
+   Coupons, etc. Was previously undefined globally, so every skeleton on
+   every page rendered as an invisible/transparent box with no shimmer
+   — looked like blank space rather than a loading state. */
+.skeleton{
+  background: linear-gradient(
+    100deg,
+    var(--border) 30%,
+    var(--card-hover) 50%,
+    var(--border) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer{
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

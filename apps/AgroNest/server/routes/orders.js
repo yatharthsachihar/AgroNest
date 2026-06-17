@@ -2,6 +2,7 @@ const express = require('express');
 const Order = require('../models/Order');
 const { protect } = require('../middleware/authMiddleware');
 const router = express.Router();
+const sseManager = require('../utils/sse');
 
 const Product = require('../models/Product');
 const Coupon = require('../models/Coupon');
@@ -79,9 +80,45 @@ router.post('/', protectUser, async (req, res) => {
       status: 'pending',
       paymentStatus: 'pending'
     });
+
+    // 5. Deduct Inventory
+    for (const item of enrichedItems) {
+      const p = await Product.findById(item.product);
+      if (p && p.trackInventory) {
+        p.stock -= item.quantity;
+        await p.save();
+        
+        // Stock alert logic
+        if (p.stock === 0) {
+          sseManager.dispatch({
+            type: 'inventory', title: 'Out of Stock',
+            message: `${p.name} is now out of stock.`,
+            referenceId: p._id, referenceType: 'Product'
+          });
+        } else if (p.stock <= p.lowStockThreshold) {
+          sseManager.dispatch({
+            type: 'inventory', title: 'Low Stock Alert',
+            message: `${p.name} has dropped to ${p.stock} units.`,
+            referenceId: p._id, referenceType: 'Product'
+          });
+        }
+      }
+    }
     
+    // Dispatch new order notification
+    sseManager.dispatch({
+      type: 'order',
+      title: 'New Order Received',
+      message: `Order #${order._id.toString().slice(-4)} worth ₹${grandTotal} placed by ${customerName}.`,
+      referenceId: order._id,
+      referenceType: 'Order'
+    });
+
     res.status(201).json(order);
-  } catch (err) { res.status(400).json({ message: err.message }); }
+  } catch (err) { 
+    console.error('Order creation error:', err);
+    res.status(400).json({ message: err.message }); 
+  }
 });
 
 // Protected User — get their orders
@@ -115,6 +152,16 @@ router.put('/:id/cancel', protectUser, async (req, res) => {
 
     order.status = 'cancelled';
     await order.save();
+    
+    // Dispatch cancellation notification
+    sseManager.dispatch({
+      type: 'order',
+      title: 'Order Cancelled',
+      message: `Order #${order._id.toString().slice(-4)} was cancelled by the customer.`,
+      referenceId: order._id,
+      referenceType: 'Order'
+    });
+
     res.json(order);
   } catch (err) { res.status(400).json({ message: err.message }); }
 });
@@ -141,6 +188,15 @@ router.put('/:id/pay', async (req, res) => {
     if (transactionId) order.transactionId = transactionId;
 
     await order.save();
+
+    sseManager.dispatch({
+      type: 'payment',
+      title: 'Payment Received',
+      message: `Order #${order._id.toString().slice(-4)} payment confirmed.`,
+      referenceId: order._id,
+      referenceType: 'Order'
+    });
+
     res.json(order);
   } catch (err) { res.status(400).json({ message: err.message }); }
 });
@@ -157,6 +213,17 @@ router.get('/', protect, async (req, res) => {
 router.put('/:id', protect, async (req, res) => {
   try {
     const order = await Order.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    
+    if (req.body.status) {
+      sseManager.dispatch({
+        type: 'order',
+        title: 'Order Status Changed',
+        message: `Order #${order._id.toString().slice(-4)} marked as ${req.body.status}.`,
+        referenceId: order._id,
+        referenceType: 'Order'
+      });
+    }
+    
     res.json(order);
   } catch (err) { res.status(400).json({ message: err.message }); }
 });

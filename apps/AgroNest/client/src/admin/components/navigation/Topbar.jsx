@@ -1,17 +1,46 @@
+import { useState, useEffect } from "react";
 import { FiBell, FiSearch, FiMoon, FiSun, FiLogOut, FiExternalLink } from "react-icons/fi";
 import { useNavigate, Link } from "react-router-dom";
 import { useTheme } from "../../../context/ThemeContext";
 import { useAuthStore } from "../../store/authStore";
+import useNotificationStore from "../../store/notificationStore";
+import GlobalSearchModal from "./GlobalSearchModal";
+import NotificationCenter from "./NotificationCenter";
+import "../../styles/notifications.css";
 
 export default function Topbar() {
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
   const { theme, toggleTheme } = useTheme();
   const { admin, logout } = useAuthStore();
   const navigate = useNavigate();
+
+  const { fetchNotifications, connectSSE, unreadCount } = useNotificationStore();
+  const [isNotifOpen, setIsNotifOpen] = useState(false);
+  const [isRinging, setIsRinging] = useState(false);
+
+  useEffect(() => {
+    fetchNotifications();
+    connectSSE();
+  }, [fetchNotifications, connectSSE]);
+
+  // No longer needed as we'll animate based on unreadCount > 0
 
   const handleLogout = () => {
     logout();
     navigate("/admin/login");
   };
+
+  // Keyboard shortcut Ctrl+K or Cmd+K
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === 'k') {
+        e.preventDefault();
+        setIsSearchOpen(true);
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const initials = admin?.name
     ? admin.name.split(" ").map(w => w[0]).join("").slice(0, 2).toUpperCase()
@@ -22,9 +51,15 @@ export default function Topbar() {
   return (
     <header className="admin-topbar">
 
-      <div className="topbar-search">
+      <div 
+        className="topbar-search" 
+        onClick={() => setIsSearchOpen(true)}
+        style={{ cursor: "pointer" }}
+      >
         <FiSearch />
-        <input type="text" placeholder="Search products, orders, customers…" />
+        <span style={{ color: "var(--text-muted)", flex: 1, fontSize: "14px" }}>
+          Search features, pages... (Ctrl+K)
+        </span>
       </div>
 
       <div className="topbar-right">
@@ -54,14 +89,22 @@ export default function Topbar() {
         </button>
 
         {/* Notifications */}
-        <button className="topbar-btn" title="Notifications" style={{ position: "relative" }}>
-          <FiBell size={18} />
-          <span style={{
-            position: "absolute", top: 10, right: 10,
-            width: 8, height: 8, background: "#ef4444",
-            borderRadius: "50%", border: "2px solid var(--bg-secondary)",
-          }} />
-        </button>
+        <div className="topbar-bell-wrapper" style={{ position: "relative" }}>
+          <button 
+            className={`topbar-btn ${unreadCount > 0 ? 'bell-ringing bell-glowing' : ''}`} 
+            title="Notifications" 
+            onClick={() => setIsNotifOpen(!isNotifOpen)}
+          >
+            <FiBell size={18} />
+            {unreadCount > 0 && (
+              <span className={`bell-badge ${unreadCount > 99 ? '' : ''}`}>
+                {unreadCount > 99 ? '99+' : unreadCount}
+              </span>
+            )}
+          </button>
+          
+          {isNotifOpen && <NotificationCenter onClose={() => setIsNotifOpen(false)} />}
+        </div>
 
         {/* User info */}
         <div className="topbar-user">
@@ -88,6 +131,11 @@ export default function Topbar() {
         </button>
 
       </div>
+
+      <GlobalSearchModal 
+        isOpen={isSearchOpen} 
+        onClose={() => setIsSearchOpen(false)} 
+      />
     </header>
   );
 }

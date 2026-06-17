@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
 import toast from "react-hot-toast";
-import { FiPlus, FiEdit, FiTrash2, FiGrid, FiX } from "react-icons/fi";
+import { FiPlus, FiEdit, FiTrash2, FiGrid, FiX, FiSearch } from "react-icons/fi";
 import { categoryApi } from "../../../api/categoryApi";
 import PageHeader from "../../components/common/PageHeader";
 import Button from "../../components/common/Button";
@@ -213,8 +213,9 @@ function CategoryForm({ category, onSuccess }) {
 export default function CategoriesPage() {
   const pageRef     = useRef();
   const queryClient = useQueryClient();
-  const [modal,   setModal]   = useState(null); // null | 'create' | category object
+  const [modal,    setModal]    = useState(null);
   const [deleting, setDeleting] = useState(null);
+  const [search,   setSearch]   = useState("");
 
   const { data: categories = [], isLoading } = useQuery({
     queryKey: ["categories"],
@@ -245,20 +246,55 @@ export default function CategoriesPage() {
         actions={<Button size="sm" onClick={() => setModal("create")}><FiPlus /> Add Category</Button>}
       />
 
+      {/* Search bar */}
+      <div style={{ position:"relative", maxWidth:360, marginBottom:20 }}>
+        <FiSearch size={15} style={{ position:"absolute", left:12, top:"50%",
+          transform:"translateY(-50%)", color:"var(--text-muted)", pointerEvents:"none" }} />
+        <input
+          value={search}
+          onChange={e => setSearch(e.target.value)}
+          placeholder="Search categories by name or slug…"
+          style={{
+            width:"100%", padding:"9px 12px 9px 36px",
+            background:"var(--bg)", border:"1px solid var(--border)",
+            borderRadius:10, color:"var(--text)", fontSize:13,
+            fontFamily:"inherit", outline:"none", boxSizing:"border-box",
+          }}
+        />
+        {search && (
+          <button onClick={() => setSearch("")}
+            style={{ position:"absolute", right:10, top:"50%", transform:"translateY(-50%)",
+              background:"none", border:"none", color:"var(--text-muted)", cursor:"pointer", fontSize:14 }}>
+            <FiX size={14} />
+          </button>
+        )}
+      </div>
+
       {/* Category Cards Grid */}
       {isLoading ? (
         <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(280px,1fr))", gap:20 }}>
           {Array.from({ length:6 }).map((_,i) => <Skeleton key={i} height={180} radius={20} />)}
         </div>
-      ) : categories.length === 0 ? (
-        <div className="table-wrap">
-          <div className="empty-state"><FiGrid /><h3>No Categories Yet</h3><p>Create your first product category</p>
-            <Button size="sm" onClick={() => setModal("create")}><FiPlus /> Add Category</Button>
+      ) : (() => {
+        const filtered = search
+          ? categories.filter(c =>
+              c.name?.toLowerCase().includes(search.toLowerCase()) ||
+              c.slug?.toLowerCase().includes(search.toLowerCase()) ||
+              c.description?.toLowerCase().includes(search.toLowerCase())
+            )
+          : categories;
+        return filtered.length === 0 ? (
+          <div className="table-wrap">
+            <div className="empty-state"><FiGrid />
+              <h3>{search ? `No categories match "${search}"` : "No Categories Yet"}</h3>
+              <p>{search ? "Try a different keyword" : "Create your first product category"}</p>
+              {!search && <Button size="sm" onClick={() => setModal("create")}><FiPlus /> Add Category</Button>}
+              {search && <button onClick={() => setSearch("")} style={{ padding:"8px 18px", borderRadius:10, border:"1px solid var(--border)", background:"var(--bg)", color:"var(--text-muted)", cursor:"pointer", fontFamily:"inherit", fontSize:13 }}>Clear search</button>}
+            </div>
           </div>
-        </div>
-      ) : (
-        <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(280px,1fr))", gap:20 }}>
-          {categories.map(cat => (
+        ) : (
+          <div style={{ display:"grid", gridTemplateColumns:"repeat(auto-fill, minmax(280px,1fr))", gap:20 }}>
+            {filtered.map(cat => (
             <div key={cat._id} className="cat-card" style={{
               background:"var(--card)", border:"1px solid var(--border)", borderRadius:20,
               overflow:"hidden", boxShadow:"var(--shadow)",
@@ -305,8 +341,9 @@ export default function CategoriesPage() {
               </div>
             </div>
           ))}
-        </div>
-      )}
+          </div>
+        );
+      })()}
 
       {/* Create/Edit Modal */}
       <Modal
