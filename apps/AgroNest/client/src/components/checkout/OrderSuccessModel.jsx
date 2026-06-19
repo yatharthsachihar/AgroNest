@@ -242,7 +242,7 @@ function InvoiceTemplate({ order, gstAmount, orderDate }) {
                         <td style={{ width: '35%', textAlign: 'center' }}>
                             <div className={styles['qr-cell']}>
                                 <div className={styles['qr-graphic-wrapper']}>
-                                    <QRCode value={window.location.origin} size={60} fgColor="#1B5E20" />
+                                    <QRCode value="https://axiomcropsciences.com/" size={60} fgColor="#1B5E20" />
                                 </div>
                                 <span className={styles['invoice-num-text']}>Invoice Number: {invoiceNo}</span>
                             </div>
