@@ -222,12 +222,28 @@
 }
 
 @media(max-width:480px){
+  .admin-topbar {
+    padding: 0 8px;
+  }
   /* Hide live site button and theme toggle on extremely narrow screens */
   .topbar-site-btn,
   .topbar-btn[title="Toggle theme"] {
     display: none !important;
   }
+  .topbar-right {
+    gap: 6px;
+  }
+  .topbar-btn {
+    width: 38px !important;
+    height: 38px !important;
+  }
+  .topbar-search, .topbar-hamburger-btn {
+    width: 38px !important;
+    height: 38px !important;
+  }
   .avatar {
-    display: none !important; /* Hide avatar to save horizontal space on small phones */
+    width: 34px !important;
+    height: 34px !important;
+    font-size: 14px;
   }
 }

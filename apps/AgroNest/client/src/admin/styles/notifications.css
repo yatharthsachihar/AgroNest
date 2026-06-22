@@ -262,3 +262,11 @@
     transform-origin: top center !important;
   }
 }
+
+@media(max-width:480px){
+  .notification-center-dropdown {
+    left: 8px !important;
+    right: 8px !important;
+    top: 60px !important;
+  }
+}
