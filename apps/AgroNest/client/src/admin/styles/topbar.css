@@ -142,6 +142,32 @@
   background: var(--card-hover);
 }
 
+@media(max-width:1024px){
+  .topbar-search {
+    width: 220px !important;
+    max-width: 30vw;
+  }
+  .topbar-search span {
+    font-size: 12px !important;
+  }
+  .topbar-right {
+    gap: 10px !important;
+  }
+  .topbar-site-btn {
+    width: 46px !important;
+    height: 46px !important;
+    padding: 0 !important;
+    justify-content: center !important;
+    min-width: 46px !important;
+  }
+  .topbar-site-label {
+    display: none !important;
+  }
+  .topbar-user > div:last-child {
+    display: none !important;
+  }
+}
+
 @media(max-width:768px){
   .admin-topbar {
     padding: 0 16px;

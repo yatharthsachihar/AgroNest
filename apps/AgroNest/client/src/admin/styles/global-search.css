@@ -159,3 +159,36 @@
   color: var(--text-muted);
   font-size: 15px;
 }
+
+/* ── Mobile Responsiveness ── */
+@media (max-width: 768px) {
+  .global-search-overlay {
+    padding: 20px;
+    padding-top: 15vh;
+  }
+  
+  .global-search-modal {
+    max-height: 80vh;
+    border-radius: 16px;
+  }
+  
+  .global-search-header {
+    padding: 12px 16px;
+  }
+  
+  .global-search-header input {
+    font-size: 16px;
+  }
+  
+  .global-search-results {
+    max-height: 60vh;
+  }
+  
+  .search-result-item {
+    padding: 10px 12px;
+  }
+  
+  .esc-hint {
+    display: none; /* Hide on mobile since there's usually no ESC key */
+  }
+}
