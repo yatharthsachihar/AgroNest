@@ -144,9 +144,10 @@ export default function SettingsPage() {
   const [form, setForm] = useState(null);
 
   useGSAP(() => {
+    if (!form) return;
     gsap.from(".page-header",      { opacity: 0, y: -20, duration: 0.5 });
     gsap.from(".settings-section", { opacity: 0, y: 30, stagger: 0.1, duration: 0.6, delay: 0.15 });
-  }, { scope: pageRef });
+  }, { scope: pageRef, dependencies: [form] });
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["settings"],
@@ -176,7 +177,7 @@ export default function SettingsPage() {
 
   if (isLoading || !form) {
     return (
-      <div className="dash-section">
+      <div ref={pageRef} className="dash-section">
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
           {Array.from({ length: 5 }).map((_, i) => <Skeleton key={i} height={180} radius={20} />)}
         </div>

@@ -112,9 +112,10 @@ export default function HomepageBuilderPage() {
   const [saved, setSaved] = useState(false);
 
   useGSAP(() => {
+    if (!form) return;
     gsap.from(".page-header", { opacity: 0, y: -20, duration: 0.5 });
     gsap.from(".hpb-card",    { opacity: 0, y: 30, stagger: 0.08, duration: 0.5, delay: 0.1 });
-  }, { scope: pageRef, dependencies: [tab] });
+  }, { scope: pageRef, dependencies: [tab, form] });
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["settings"],
@@ -146,7 +147,7 @@ export default function HomepageBuilderPage() {
 
   if (isLoading || !form) {
     return (
-      <div className="dash-section">
+      <div ref={pageRef} className="dash-section">
         <div style={{ display: "flex", flexDirection: "column", gap: 20 }}>
           {[1,2,3].map(i => <Skeleton key={i} height={160} radius={20} />)}
         </div>
