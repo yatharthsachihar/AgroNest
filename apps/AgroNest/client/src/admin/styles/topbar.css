@@ -170,43 +170,47 @@
 
 @media(max-width:768px){
   .admin-topbar {
-    padding: 0 16px;
-    height: 70px;
+    padding: 0 12px;
+    height: 64px;
   }
   .topbar-hamburger-btn {
     display: flex;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
   }
   .topbar-search {
-    width: 46px !important;
-    height: 46px !important;
+    width: 38px !important;
+    height: 38px !important;
     padding: 0 !important;
     justify-content: center;
-    border-radius: 13px !important;
+    border-radius: 10px !important;
   }
   .topbar-search span {
     display: none !important;
   }
   .topbar-right {
-    gap: 8px;
+    gap: 6px;
   }
   .topbar-btn {
-    width: 46px;
-    height: 46px;
-    border-radius: 13px;
+    width: 38px;
+    height: 38px;
+    border-radius: 10px;
   }
   .topbar-site-btn {
-    width: 46px !important;
-    height: 46px !important;
+    width: 38px !important;
+    height: 38px !important;
     padding: 0 !important;
     justify-content: center !important;
-    border-radius: 13px !important;
+    border-radius: 10px !important;
   }
   .topbar-site-label {
     display: none !important;
   }
   .avatar {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
+    font-size: 13px;
   }
   .topbar-user > div:last-child {
     display: none !important;
@@ -222,5 +226,8 @@
   .topbar-site-btn,
   .topbar-btn[title="Toggle theme"] {
     display: none !important;
+  }
+  .avatar {
+    display: none !important; /* Hide avatar to save horizontal space on small phones */
   }
 }
