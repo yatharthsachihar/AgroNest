@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useGSAP } from "@gsap/react";
 import gsap from "gsap";
@@ -33,6 +33,7 @@ function QuickStockAdjustPanel() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["inventory"] });
       queryClient.invalidateQueries({ queryKey: ["allProductsForAdjustment"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success("Inventory adjusted successfully!");
       setAmount("");
     },
@@ -146,13 +147,27 @@ function InventoryRow({ product }) {
   const [stock, setStock] = useState(product.stock);
   const [sku, setSku] = useState(product.sku || "");
   const [trackInventory, setTrackInventory] = useState(product.trackInventory);
-  
-  const hasChanges = stock !== product.stock || sku !== (product.sku || "") || trackInventory !== product.trackInventory;
+
+  // Keep the row's inputs in sync with the actual product data whenever it
+  // changes (after a save, a Quick Stock Adjustment, or a refetch). Without
+  // this, the inputs hold the value typed at mount and never reflect the real
+  // updated stock. (useState only seeds on first render.)
+  useEffect(() => {
+    setStock(product.stock);
+    setSku(product.sku || "");
+    setTrackInventory(product.trackInventory);
+  }, [product.stock, product.sku, product.trackInventory, product._id]);
+
+  const hasChanges = Number(stock) !== product.stock || sku !== (product.sku || "") || trackInventory !== product.trackInventory;
 
   const updateMutation = useMutation({
     mutationFn: (data) => productApi.updateStock(product._id, data),
     onSuccess: () => {
+      // Refresh the inventory list AND anything else showing product stock so
+      // the change reflects everywhere immediately.
       queryClient.invalidateQueries({ queryKey: ["inventory"] });
+      queryClient.invalidateQueries({ queryKey: ["allProductsForAdjustment"] });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
       toast.success("Inventory updated successfully!");
     },
     onError: () => toast.error("Failed to update inventory"),
