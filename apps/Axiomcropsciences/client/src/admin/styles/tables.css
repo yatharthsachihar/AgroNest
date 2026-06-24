@@ -1,0 +1,404 @@
+.table-wrap {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: var(--shadow);
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 850px;
+}
+
+.admin-table thead {
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+.admin-table th {
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 0.8px;
+  text-transform: uppercase;
+  color: var(--text-muted);
+  white-space: nowrap;
+}
+
+.admin-table td {
+  padding: 16px 20px;
+  font-size: 14px;
+  color: var(--text-secondary);
+  border-bottom: 1px solid var(--border);
+  vertical-align: middle;
+}
+
+.admin-table tbody tr:last-child td {
+  border-bottom: none;
+}
+
+.admin-table tbody tr {
+  transition: background 0.2s;
+  cursor: pointer;
+}
+
+.admin-table tbody tr:hover {
+  background: var(--card-hover);
+}
+
+/* Table Product Cell */
+.table-product {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.table-product-img {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--bg);
+  border: 1px solid var(--border);
+}
+
+.table-product-img-placeholder {
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 18px;
+}
+
+.table-product-name {
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.table-product-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 4px 12px;
+  border-radius: 50px;
+  font-size: 12px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.badge-success { background: rgba(34,197,94,.12); color: #22c55e; }
+.badge-warning { background: rgba(245,158,11,.12); color: #f59e0b; }
+.badge-danger  { background: rgba(239,68,68,.12);  color: #ef4444; }
+.badge-info    { background: rgba(59,130,246,.12);  color: #3b82f6; }
+.badge-muted   { background: rgba(127,127,127,.12); color: var(--text-muted); }
+.badge-primary { background: rgba(214,164,106,.15); color: var(--primary); }
+
+/* Table actions */
+.table-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-edit,
+.btn-delete,
+.btn-view {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  transition: 0.2s;
+}
+
+.btn-edit   { color: var(--info); }
+.btn-delete { color: var(--danger); }
+.btn-view   { color: var(--primary); }
+
+.btn-edit:hover   { background: rgba(59,130,246,.12); border-color: var(--info); }
+.btn-delete:hover { background: rgba(239,68,68,.12);  border-color: var(--danger); }
+.btn-view:hover   { background: rgba(214,164,106,.12);border-color: var(--primary); }
+
+/* Pagination */
+.table-pagination {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 18px 24px;
+  border-top: 1px solid var(--border);
+}
+
+.table-pagination-info {
+  font-size: 13px;
+  color: var(--text-muted);
+}
+
+.table-pagination-controls {
+  display: flex;
+  gap: 6px;
+}
+
+.page-btn {
+  width: 36px;
+  height: 36px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--bg);
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 13px;
+  transition: 0.2s;
+}
+
+.page-btn:hover,
+.page-btn.active {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary);
+}
+
+/* Toolbar */
+.products-toolbar,
+.page-toolbar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.products-toolbar .search-input,
+.page-toolbar .search-input {
+  flex: 1;
+  min-width: 240px;
+}
+
+.products-filters {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+/* Empty state */
+.empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 80px 20px;
+  color: var(--text-muted);
+  gap: 16px;
+}
+
+.empty-state svg {
+  font-size: 48px;
+  opacity: 0.4;
+}
+
+.empty-state h3 {
+  font-size: 18px;
+  color: var(--text-secondary);
+}
+
+.empty-state p {
+  font-size: 14px;
+  text-align: center;
+  max-width: 300px;
+}
+
+/* Checkbox col */
+.col-check { width: 44px; }
+.row-checkbox { cursor: pointer; accent-color: var(--primary); width: 16px; height: 16px; }
+
+/* Mobile Product Cards Grid */
+.mobile-products-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+.mobile-product-card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.mobile-product-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.mobile-product-img {
+  width: 64px;
+  height: 64px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  flex-shrink: 0;
+}
+
+.mobile-product-img.placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-muted);
+  font-size: 24px;
+}
+
+.mobile-product-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.mobile-product-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.mobile-product-price {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.mobile-product-meta {
+  font-size: 12px;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.mobile-product-actions {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+}
+
+.mobile-product-actions .btn {
+  flex: 1;
+  padding: 0;
+}
+
+/* ════════════════════════════════════════════════════════════════
+   Stacked tables — for table pages that have no dedicated JS mobile
+   card view (Users, Coupons, Media Library). On phones the table
+   reflows into one card per row with "Label: value" lines, so there
+   is never any horizontal scroll. Add class `stacked-table` to the
+   <table> and `data-label="…"` to each <td>. The first cell (the row
+   identity) renders full-width with no label.
+   ════════════════════════════════════════════════════════════════ */
+@media (max-width: 768px) {
+  /* Strip the wrapper chrome so the per-row cards read as the cards */
+  .table-wrap:has(table.stacked-table) {
+    background: transparent;
+    border: none;
+    box-shadow: none;
+    border-radius: 0;
+  }
+  .table-responsive:has(table.stacked-table) { overflow-x: visible; }
+
+  table.stacked-table { min-width: 0 !important; width: 100%; background: transparent; }
+  table.stacked-table thead { display: none; }
+  table.stacked-table,
+  table.stacked-table tbody,
+  table.stacked-table tr,
+  table.stacked-table td { display: block; width: 100%; }
+
+  table.stacked-table tr {
+    background: var(--card);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    margin-bottom: 14px;
+    overflow: hidden;
+  }
+  table.stacked-table tbody tr:hover { background: var(--card); }
+
+  table.stacked-table td {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 16px !important;
+    border: none !important;
+    border-bottom: 1px solid var(--border) !important;
+    text-align: right;
+    min-height: 52px;
+  }
+  table.stacked-table tr td:last-child { border-bottom: none !important; }
+
+  /* Label pulled from data-label */
+  table.stacked-table td[data-label]::before {
+    content: attr(data-label);
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    text-align: left;
+    flex-shrink: 0;
+  }
+
+  /* First cell = the row's identity (avatar/name/etc) — full width,
+     left-aligned, slightly emphasised, no label clutter. */
+  table.stacked-table td:first-child {
+    text-align: left;
+    background: var(--bg);
+  }
+  table.stacked-table td:first-child > * { width: 100%; }
+
+  /* Action buttons row aligns its buttons to the right comfortably */
+  table.stacked-table td .table-actions { justify-content: flex-end; }
+
+  /* The full-width empty-state cell should not behave like a label row */
+  table.stacked-table td[colspan]::before { display: none; }
+  table.stacked-table td[colspan] {
+    justify-content: center;
+    min-height: 0;
+    border-bottom: none !important;
+  }
+}

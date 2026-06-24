@@ -1,0 +1,76 @@
+/* ============================================
+   GLOBAL BASE — Axiom Seeds
+   index.css: minimal reset, no layout constraints
+   ============================================ */
+
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  /* Dark default — ThemeContext will apply data-theme immediately on mount.
+     This prevents a white flash before React hydrates. */
+  background: #090909;
+  color: #ffffff;
+  transition: background 0.3s, color 0.3s;
+}
+
+html {
+  background: #090909;
+  transition: background 0.3s;
+}
+
+/* Light mode — triggered by ThemeContext setting data-theme on <html> */
+[data-theme="light"] body,
+[data-site-theme="light"] body {
+  background: #faf7f2;
+  color: #1A1A1A;
+}
+
+[data-theme="light"] html,
+[data-site-theme="light"] html {
+  background: #faf7f2;
+}
+
+/* #root must be full-width — both admin panel and site pages need this */
+#root {
+  width: 100%;
+  max-width: 100%;
+  min-height: 100vh;
+  margin: 0;
+  text-align: left;
+  border: none;
+  display: block;
+}
+
+/* Remove all Vite default h1/h2 overrides that conflict with our fonts */
+h1, h2, h3, h4, h5, h6 {
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+button {
+  font-family: inherit;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+img {
+  max-width: 100%;
+  display: block;
+}
+
+/* Smooth scrolling */
+html {
+  scroll-behavior: smooth;
+}

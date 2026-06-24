@@ -1,0 +1,224 @@
+{
+  "main": {
+    "id": "edd3a4fd997fff4a",
+    "type": "split",
+    "children": [
+      {
+        "id": "63a0649308ab441c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "92e6b654ed676bbd",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Working Agreement.md",
+                "mode": "source",
+                "source": false
+              },
+              "icon": "lucide-file",
+              "title": "Working Agreement"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "5cb35999c433e8dc",
+    "type": "split",
+    "children": [
+      {
+        "id": "6c93d6476d59c96b",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "6844b7f57d8c1834",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical",
+                "autoReveal": false
+              },
+              "icon": "lucide-folder-closed",
+              "title": "Files"
+            }
+          },
+          {
+            "id": "f8e99be0b0b0b872",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              },
+              "icon": "lucide-search",
+              "title": "Search"
+            }
+          },
+          {
+            "id": "da6bf90e72773f43",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {},
+              "icon": "lucide-bookmark",
+              "title": "Bookmarks"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300
+  },
+  "right": {
+    "id": "e4b5d2610d2a6187",
+    "type": "split",
+    "children": [
+      {
+        "id": "73463de1368cb26f",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "f3058f80012f8ba9",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "AgroNest.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-coming-in",
+              "title": "Backlinks for AgroNest"
+            }
+          },
+          {
+            "id": "4e929738cb9efe36",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "AgroNest.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              },
+              "icon": "links-going-out",
+              "title": "Outgoing links from AgroNest"
+            }
+          },
+          {
+            "id": "c82eb713f9700231",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-tags",
+              "title": "Tags"
+            }
+          },
+          {
+            "id": "437bdf7383a6a5a1",
+            "type": "leaf",
+            "state": {
+              "type": "all-properties",
+              "state": {
+                "sortOrder": "frequency",
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-archive",
+              "title": "All properties"
+            }
+          },
+          {
+            "id": "756c5cfa937a9544",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "AgroNest.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "Outline of AgroNest"
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 300,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false,
+      "bases:Create new base": false
+    }
+  },
+  "active": "92e6b654ed676bbd",
+  "lastOpenFiles": [
+    "Gotchas.md",
+    "Features/#Products.md",
+    "Recent Changes.md.tmp.7456.223e77ed00b6",
+    "Recent Changes.md.tmp.7456.32e7fb042ee8",
+    "Recent Changes.md",
+    "AI Instructions.md",
+    "Design System.md.tmp.11028.5f95d0781bce",
+    "AI Instructions.md.tmp.11028.2827837d7b6c",
+    "Token Playbook.md",
+    "Folder Structure.md",
+    "Architecture.md",
+    "File Map.md",
+    "Working Agreement.md",
+    "API Reference.md",
+    "Axiom Seeds.md.tmp.31372.db8b39f74b43",
+    "API Reference.md.tmp.31372.324100eaa3b8",
+    "Untitled.canvas",
+    "Mobile Responsiveness.md.tmp.31372.8e69587cb01a",
+    "Design System.md.tmp.31372.db931fdddef0",
+    "Database.md.tmp.31372.63b448c9a006",
+    "Architecture.md.tmp.31372.5e1444772b7d",
+    "Mobile Responsiveness.md",
+    "Database.md",
+    "Axiom Seeds.md",
+    "AgroNest.md",
+    "Features/Settings.md",
+    "Features/Blog.md",
+    "Features/Categories.md",
+    "Components/Navbar.md",
+    "Components/ProductCard.md",
+    "Components/Footer.md",
+    "Design System.md",
+    "Development Rules.md",
+    "Features.md",
+    "Project Structure.md"
+  ]
+}

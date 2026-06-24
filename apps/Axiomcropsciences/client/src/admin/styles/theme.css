@@ -1,0 +1,89 @@
+:root{
+  --bg:#090909;
+  --bg-secondary:#111111;
+
+  --card:#171717;
+  --card-hover:#1d1d1d;
+
+  --border:#262626;
+
+  --text:#ffffff;
+  --text-secondary:#bdbdbd;
+  --text-muted:#7f7f7f;
+
+  --primary:#0F4D23;
+  --primary-dark:#0E6D03;
+  --accent:#F4C542;
+
+  --success:#22c55e;
+  --warning:#f59e0b;
+  --danger:#ef4444;
+  --info:#3b82f6;
+
+  --shadow:
+    0 10px 30px rgba(0,0,0,.35);
+}
+
+.admin-layout[data-theme="light"]{
+  --bg:#f4f5f7;
+  --bg-secondary:#ffffff;
+
+  --card:#ffffff;
+  --card-hover:#fafafa;
+
+  --border:#e8e8e8;
+
+  --text:#111827;
+  --text-secondary:#6b7280;
+  --text-muted:#9ca3af;
+
+  --primary:#0F4D23;
+  --primary-dark:#0E6D03;
+  --accent:#F4C542;
+}
+
+*{
+  margin:0;
+  padding:0;
+  box-sizing:border-box;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+  font-family:Inter,sans-serif;
+}
+
+::-webkit-scrollbar{
+  width:10px;
+}
+
+::-webkit-scrollbar-thumb{
+  background:#3b3b3b;
+  border-radius:20px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+  background:var(--primary);
+}
+
+/* ── Skeleton loaders ──
+   Used by Skeleton.jsx across Dashboard, Products, Banners, Categories,
+   Coupons, etc. Was previously undefined globally, so every skeleton on
+   every page rendered as an invisible/transparent box with no shimmer
+   — looked like blank space rather than a loading state. */
+.skeleton{
+  background: linear-gradient(
+    100deg,
+    var(--border) 30%,
+    var(--card-hover) 50%,
+    var(--border) 70%
+  );
+  background-size: 200% 100%;
+  animation: skeleton-shimmer 1.4s ease-in-out infinite;
+}
+
+@keyframes skeleton-shimmer{
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}

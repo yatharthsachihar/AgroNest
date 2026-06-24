@@ -1,0 +1,287 @@
+/* ============================================
+   AXIOM SEEDS SITE — Global CSS Variables & Base
+   ============================================ */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,500;0,700;1,500&display=swap');
+
+/* ── LIGHT mode defaults ── */
+:root {
+  --site-bg:          #faf7f2;
+  --site-primary:     #1F7A3D;
+  --site-secondary:   #C68A3A;
+  --site-card:        #ffffff;
+  --site-text:        #1A1A1A;
+  --site-text-muted:  #6B7280;
+  --site-accent:      #F5B041;
+  --site-border:      #E8E0D5;
+  --site-green-light: #E8F5EC;
+  --site-amber-light: #FDF3E3;
+  --site-font-body:    'Inter', system-ui, -apple-system, sans-serif;
+  --site-font-display: 'Playfair Display', Georgia, serif;
+  --site-radius:     16px;
+  --site-radius-btn: 14px;
+  --site-max-width:   1320px;
+  --site-section-py:  var(--section-y);  /* alias kept for existing usages */
+  --site-shadow-sm:   0 2px 8px rgba(31,122,61,0.08);
+  --site-shadow-md:   0 8px 32px rgba(31,122,61,0.12);
+  --site-shadow-lg:   0 20px 60px rgba(31,122,61,0.15);
+  --site-shadow-card: 0 4px 24px rgba(0,0,0,0.06);
+  --site-ease: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+  /* ── Typography scale (fluid: scales down gracefully on mobile).
+     Sizes chosen to MATCH the existing good sizes so applying tokens causes
+     no visual jump. --fs-h1 == the current .site-section-heading size. ── */
+  --fs-display: clamp(2.2rem, 5vw, 3.4rem);   /* hero / page-defining */
+  --fs-h1:      clamp(1.9rem, 4vw, 3rem);     /* page & section headings */
+  --fs-h2:      clamp(1.5rem, 3vw, 2.1rem);
+  --fs-h3:      clamp(1.2rem, 2vw, 1.5rem);
+  --fs-h4:      1.15rem;
+  --fs-body:    1rem;        /* 16px */
+  --fs-small:   0.875rem;    /* 14px */
+  --fs-tiny:    0.75rem;     /* 12px */
+
+  --lh-tight:   1.15;
+  --lh-heading: 1.25;
+  --lh-body:    1.7;
+
+  --fw-regular:  400;
+  --fw-medium:   500;
+  --fw-semibold: 600;
+  --fw-bold:     700;
+  --fw-extra:    800;
+
+  /* ── Spacing scale (8px base rhythm) ── */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 32px;
+  --space-7: 48px;
+  --space-8: 64px;
+  --space-9: 96px;
+
+  /* ── Section vertical rhythm (one source of truth; mobile override below) ── */
+  --section-y:    100px;   /* standard section padding (top & bottom) */
+  --section-y-sm: 64px;    /* tighter sections */
+  --section-y-lg: 140px;   /* hero-adjacent / feature sections */
+
+  /* Breathing room at the TOP of a normal page's first section/hero band.
+     The fixed header is ALREADY cleared globally by `.site-root { padding-top:
+     var(--site-nav-offset) }` — so page heroes must NOT re-add the navbar
+     offset (that double-counts). They use only this breathing value. */
+  --page-pad-top: 48px;
+
+  /* ── Transitions ── */
+  --site-transition-fast: 0.15s var(--site-ease);
+  --site-transition:      0.25s var(--site-ease);
+  --site-transition-slow: 0.40s var(--site-ease);
+
+  /* Static fallbacks for variables the JS theme layer also sets at runtime.
+     Defined here so they're never invalid before SettingsContext mounts. */
+  --site-primary-dark:  #145C2D;
+  --site-primary-light: rgba(27,122,61,0.13);
+  --site-primary-rgb:   27,122,61;
+  --site-green:         #16a34a;
+  --site-red:           #ef4444;
+  --site-danger:        #ef4444;
+  --site-warning:       #f59e0b;
+  --site-card-bg:       #ffffff;
+  --site-bg-secondary:  #eef2ea;
+  --site-bg-alt:        #f1f5ee;
+  --site-bg-hover:      rgba(20,40,24,0.04);
+  --site-nav-offset:    76px;
+}
+
+/* ── DARK mode — triggers from ThemeContext via data-site-theme or data-theme ── */
+[data-site-theme="dark"],
+[data-theme="dark"] {
+  --site-bg:          #0A0F0C;
+  --site-primary:     #4ABA72;
+  --site-secondary:   #E5A754;
+  --site-card:        #111813;
+  --site-text:        #F0EDE8;
+  --site-text-muted:  #8A9490;
+  --site-accent:      #F5B041;
+  --site-border:      #1E2A22;
+  --site-green-light: #0F1E15;
+  --site-amber-light: #1C1408;
+  --site-shadow-sm:   0 2px 8px rgba(0,0,0,0.4);
+  --site-shadow-md:   0 8px 32px rgba(0,0,0,0.5);
+  --site-shadow-lg:   0 20px 60px rgba(0,0,0,0.6);
+  --site-shadow-card: 0 4px 24px rgba(0,0,0,0.4);
+}
+
+/* ── Apply dark background globally when dark ── */
+[data-theme="dark"] body,
+[data-site-theme="dark"] body {
+  background: #0A0F0C;
+  color: #F0EDE8;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', system-ui, sans-serif;
+  transition: background 0.3s, color 0.3s;
+  overflow-x: hidden;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+/* ── Site root wrapper ── */
+.site-root {
+  background: var(--site-bg);
+  color: var(--site-text);
+  font-family: var(--site-font-body);
+  min-height: 100vh;
+  transition: background 0.3s, color 0.3s;
+}
+
+/* ── Base typography baseline ──
+   :where() keeps specificity at zero, so any component class size/weight still
+   wins. This only standardizes storefront headings & paragraphs that have no
+   explicit size today — giving a consistent scale without redesigning anything. */
+:where(.site-root) h1 { font-size: var(--fs-h1); line-height: var(--lh-heading); font-weight: var(--fw-bold); }
+:where(.site-root) h2 { font-size: var(--fs-h2); line-height: var(--lh-heading); font-weight: var(--fw-bold); }
+:where(.site-root) h3 { font-size: var(--fs-h3); line-height: var(--lh-heading); font-weight: var(--fw-semibold); }
+:where(.site-root) h4 { font-size: var(--fs-h4); line-height: var(--lh-heading); font-weight: var(--fw-semibold); }
+:where(.site-root) p  { font-size: var(--fs-body); line-height: var(--lh-body); }
+:where(.site-root) small { font-size: var(--fs-small); }
+
+/* ── Container ── */
+.site-container {
+  width: 100%;
+  max-width: var(--site-max-width);
+  margin: 0 auto;
+  padding: 0 40px;
+}
+
+@media (max-width: 768px) {
+  .site-container { padding: 0 20px; }
+  /* Shrink the whole rhythm on mobile via the single source token */
+  :root { --section-y: 64px; --section-y-lg: 88px; --page-pad-top: 32px; }
+}
+
+/* ── Section Label ── */
+.site-section-label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--site-primary);
+  margin-bottom: 14px;
+}
+.site-section-label::before {
+  content: '';
+  width: 22px;
+  height: 2px;
+  background: var(--site-primary);
+  border-radius: 2px;
+}
+
+/* ── Section Heading ── */
+.site-section-heading {
+  font-family: var(--site-font-display);
+  font-size: var(--fs-h1);          /* == clamp(1.9rem,4vw,3rem), tokenized */
+  font-weight: var(--fw-bold);
+  color: var(--site-text);
+  line-height: var(--lh-tight);
+  margin: 0 0 16px;
+}
+
+.site-section-sub {
+  font-size: 1.05rem;
+  color: var(--site-text-muted);
+  max-width: 540px;
+  line-height: 1.75;
+  margin: 0 auto 52px;
+}
+
+/* ── Buttons ── */
+.site-btn-primary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--site-primary);
+  color: #fff;
+  border: none;
+  border-radius: var(--site-radius-btn, 14px);
+  padding: 15px 30px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.25s var(--site-ease), box-shadow 0.25s, background 0.25s;
+}
+.site-btn-primary:hover {
+  background: #185f30;
+  transform: translateY(-2px);
+  box-shadow: var(--site-shadow-md);
+}
+
+[data-theme="dark"] .site-btn-primary:hover,
+[data-site-theme="dark"] .site-btn-primary:hover {
+  background: #3aa862;
+}
+
+.site-btn-secondary {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  background: transparent;
+  color: var(--site-text);
+  border: 2px solid var(--site-border);
+  border-radius: var(--site-radius-btn, 14px);
+  padding: 13px 28px;
+  font-size: 15px;
+  font-weight: 600;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform 0.25s, border-color 0.25s, color 0.25s;
+}
+.site-btn-secondary:hover {
+  border-color: var(--site-primary);
+  color: var(--site-primary);
+  transform: translateY(-2px);
+}
+
+/* ── Form inputs (site-wide) ── */
+.site-input {
+  width: 100%;
+  height: 50px;
+  background: var(--site-card);
+  border: 1.5px solid var(--site-border);
+  border-radius: 14px;
+  padding: 0 16px;
+  color: var(--site-text);
+  font-size: 14px;
+  font-family: var(--site-font-body);
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+.site-input:focus {
+  border-color: var(--site-primary);
+  box-shadow: 0 0 0 3px rgba(74,186,114,0.15);
+}
+.site-input.input-error { border-color: #ef4444; }
+
+/* ── form-group utility ── */
+.site-form-group { display: flex; flex-direction: column; gap: 6px; }
+.site-form-group label { font-size: 13px; font-weight: 600; color: var(--site-text-muted); }
+
+.required { color: #ef4444; margin-left: 2px; }
+.error-text { font-size: 12px; color: #ef4444; }
+
+/* ── Announcement bar offset ── */
+/* Only hero pages (transparent navbar) cancel the top padding;
+   regular pages keep the 108px offset set by Navbar.css */
+.site-root.site-root-hero { padding-top: 0; }
+
+/* ── Scrollbar ── */
+::-webkit-scrollbar        { width: 6px; height: 6px; }
+::-webkit-scrollbar-track  { background: transparent; }
+::-webkit-scrollbar-thumb  { background: var(--site-border); border-radius: 20px; }
+::-webkit-scrollbar-thumb:hover { background: var(--site-primary); }

@@ -1,0 +1,55 @@
+.dashboard-page{
+  padding:30px;
+}
+
+.dashboard-header{
+  margin-bottom:30px;
+}
+
+.dashboard-header h1{
+  font-size:40px;
+  font-weight:800;
+}
+
+.dashboard-header p{
+  margin-top:8px;
+  color:var(--text-secondary);
+}
+
+.stats-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:22px;
+  margin-bottom:24px;
+}
+
+.dashboard-grid{
+  display:grid;
+  grid-template-columns:2fr 1fr;
+  gap:22px;
+}
+
+.dashboard-widget{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:24px;
+  padding:24px;
+  min-height:280px;
+  box-shadow:var(--shadow);
+  transition:.3s;
+  overflow:hidden;
+}
+
+.dashboard-widget:hover{
+  transform:translateY(-4px);
+}
+
+.dashboard-widget.large{
+  min-height:450px;
+}
+
+/* Recharts responsive fix — never let the chart SVG overflow its card */
+.dashboard-widget .recharts-wrapper,
+.dashboard-widget .recharts-surface {
+  max-width: 100% !important;
+}

@@ -1,0 +1,7 @@
+{
+	"nodes":[
+		{"id":"5fed08e6ffa62dc3","x":-161,"y":-315,"width":250,"height":320,"type":"text","text":"Make the admin panel responsive \n\nMake the Colors bright on dark mode and dull on light mode\n\n"},
+		{"id":"60c3d586aacd8f57","type":"text","text":"","x":-620,"y":-315,"width":280,"height":320}
+	],
+	"edges":[]
+}
