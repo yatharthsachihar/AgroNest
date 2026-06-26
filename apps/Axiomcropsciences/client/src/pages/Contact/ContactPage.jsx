@@ -12,6 +12,91 @@ import { mediaUrl } from "../../api/axios";
 import "../../styles/site.css";
 import "./ContactPage.css";
 
+// Most-used country codes — ordered by relevance for an Indian agri platform
+const COUNTRY_CODES = [
+  { code:"+91",  flag:"🇮🇳", name:"India"          },
+  { code:"+1",   flag:"🇺🇸", name:"USA"            },
+  { code:"+44",  flag:"🇬🇧", name:"UK"             },
+  { code:"+971", flag:"🇦🇪", name:"UAE"            },
+  { code:"+966", flag:"🇸🇦", name:"Saudi Arabia"   },
+  { code:"+92",  flag:"🇵🇰", name:"Pakistan"       },
+  { code:"+880", flag:"🇧🇩", name:"Bangladesh"     },
+  { code:"+94",  flag:"🇱🇰", name:"Sri Lanka"      },
+  { code:"+977", flag:"🇳🇵", name:"Nepal"          },
+  { code:"+60",  flag:"🇲🇾", name:"Malaysia"       },
+  { code:"+65",  flag:"🇸🇬", name:"Singapore"      },
+  { code:"+61",  flag:"🇦🇺", name:"Australia"      },
+  { code:"+49",  flag:"🇩🇪", name:"Germany"        },
+  { code:"+33",  flag:"🇫🇷", name:"France"         },
+  { code:"+81",  flag:"🇯🇵", name:"Japan"          },
+  { code:"+86",  flag:"🇨🇳", name:"China"          },
+  { code:"+55",  flag:"🇧🇷", name:"Brazil"         },
+  { code:"+27",  flag:"🇿🇦", name:"South Africa"   },
+];
+
+// Phone field with built-in country code picker
+function PhoneWithCode({ value, onChange, error, name }) {
+  const [code, setCode] = useState("+91");
+  const [num,  setNum]  = useState(value || "");
+
+  const handleCode = (c) => {
+    setCode(c);
+    onChange({ target: { name, value: `${c} ${num}` } });
+  };
+  const handleNum = (e) => {
+    const n = e.target.value.replace(/[^0-9]/g, "");
+    setNum(n);
+    onChange({ target: { name, value: `${code} ${n}` } });
+  };
+
+  return (
+    <div style={{ display:"flex", gap:0 }}>
+      <select
+        value={code}
+        onChange={e => handleCode(e.target.value)}
+        style={{
+          padding:"0 10px",
+          background:"var(--site-bg)",
+          border:`1.5px solid ${error ? "#ef4444" : "var(--site-border)"}`,
+          borderRight:"none",
+          borderRadius:"12px 0 0 12px",
+          fontSize:14,
+          color:"var(--site-text)",
+          fontFamily:"inherit",
+          cursor:"pointer",
+          outline:"none",
+          minWidth:90,
+          height:48,
+        }}
+      >
+        {COUNTRY_CODES.map(c => (
+          <option key={c.code} value={c.code}>{c.flag} {c.code}</option>
+        ))}
+      </select>
+      <input
+        type="tel"
+        inputMode="numeric"
+        placeholder="98765 43210"
+        value={num}
+        onChange={handleNum}
+        style={{
+          flex:1,
+          padding:"0 14px",
+          background:"var(--site-bg)",
+          border:`1.5px solid ${error ? "#ef4444" : "var(--site-border)"}`,
+          borderLeft:"none",
+          borderRadius:"0 12px 12px 0",
+          fontSize:14,
+          color:"var(--site-text)",
+          fontFamily:"inherit",
+          outline:"none",
+          height:48,
+        }}
+      />
+    </div>
+  );
+}
+
 const OFFICES = [
   { city:"Ahmedabad (HQ)",  address:"B-235 Sobo Centre Gym Khana Road Bhopal Ahmedabad (Gujrat)382210", phone:"+91 7340008599", email:"axiomcropsciences@gmail.com",   hours:"Mon – Sat: 9 AM – 7 PM" },
   { city:"Ludhiana",     address:"G-14, Focal Point, Ludhiana – 141010, Punjab",                              phone:"+91 98765 11223", email:"punjab@axiomcropsciences.in", hours:"Mon – Sat: 9 AM – 6 PM" },
@@ -221,10 +306,8 @@ export default function ContactPage() {
       errs.email = "Enter a valid email address";
     }
 
-    if (!form.phone.trim()) {
+    if (!form.phone.trim() || form.phone.trim().length < 5) {
       errs.phone = "Phone number is required";
-    } else if (!/^[6-9]\d{9}$/.test(form.phone.replace(/[\s\-]/g, ""))) {
-      errs.phone = "Enter a valid 10-digit mobile number";
     }
 
     if (!form.message.trim()) {
@@ -379,7 +462,12 @@ export default function ContactPage() {
                 <div className="contact-form-row">
                   <div className="site-form-group">
                     <label>Phone Number <span className="required">*</span></label>
-                    <input className={`site-input ${errors.phone ? "input-error" : ""}`} name="phone" placeholder="+91 98765 43210" value={form.phone} onChange={handleChange} required />
+                    <PhoneWithCode
+                      name="phone"
+                      value={form.phone}
+                      onChange={handleChange}
+                      error={errors.phone}
+                    />
                     {errors.phone && <span className="error-text">{errors.phone}</span>}
                   </div>
                   <div className="site-form-group">

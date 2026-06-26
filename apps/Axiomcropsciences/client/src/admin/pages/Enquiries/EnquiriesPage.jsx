@@ -58,9 +58,9 @@ export default function EnquiriesPage() {
 
   // ── Animations ─────────────────────────────────────────────
   useGSAP(() => {
-    gsap.from(".page-header",  { opacity: 0, y: -20, duration: 0.5 });
-    gsap.from(".page-toolbar", { opacity: 0, y: 20,  duration: 0.5, delay: 0.1 });
-    gsap.from(".table-wrap",   { opacity: 0, y: 30,  duration: 0.6, delay: 0.2 });
+    gsap.from(".page-header",  { opacity: 0, y: -20, duration: 0.5, clearProps: "all" });
+    gsap.from(".page-toolbar", { opacity: 0, y: 20,  duration: 0.5, delay: 0.1, clearProps: "all" });
+    gsap.from(".table-wrap",   { opacity: 0, y: 30,  duration: 0.6, delay: 0.2, clearProps: "all" });
   }, { scope: pageRef });
 
   // ── Fetch all enquiries from backend ───────────────────────

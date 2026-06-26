@@ -32,6 +32,12 @@ export default function Navbar() {
   const [atTop, setAtTop] = useState(true);
   const [mobileOpen, setMobileOpen] = useState(false);
   const [search, setSearch] = useState("");
+  // Track viewport so we mount the search suggestions dropdown in exactly ONE
+  // place (desktop bar OR mobile drawer) — never both, which caused the
+  // duplicate suggestion panel on mobile.
+  const [isMobile, setIsMobile] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(max-width: 768px)").matches
+  );
   const [userMenu, setUserMenu] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const userMenuRef = useRef(null);
@@ -78,6 +84,15 @@ export default function Navbar() {
   }, []);
 
   useEffect(() => { setAtTop(window.scrollY < 10); }, [location.pathname]);
+
+  // Keep isMobile in sync with the viewport (drives which single search
+  // dropdown is mounted).
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 768px)");
+    const handler = (e) => setIsMobile(e.matches);
+    mq.addEventListener("change", handler);
+    return () => mq.removeEventListener("change", handler);
+  }, []);
 
   // Close user dropdown on outside click
   useEffect(() => {
@@ -182,12 +197,14 @@ export default function Navbar() {
                 onChange={e => setSearch(e.target.value)}
               />
             </form>
-            <SearchDropdown 
-              query={search} 
-              allProducts={allProducts} 
-              onSelect={() => { setSearch(""); setMobileOpen(false); }}
-              onClose={() => setSearch("")} 
-            />
+            {!isMobile && (
+              <SearchDropdown
+                query={search}
+                allProducts={allProducts}
+                onSelect={() => { setSearch(""); setMobileOpen(false); }}
+                onClose={() => setSearch("")}
+              />
+            )}
           </div>
 
           {/* Actions */}
@@ -199,10 +216,12 @@ export default function Navbar() {
               {theme === "dark" ? <FiSun size={18} /> : <FiMoon size={18} />}
             </button>
 
-            {/* Wishlist */}
-            <Link to="/wishlist" className="site-nav-icon-btn hide-on-mobile" title="Wishlist">
-              <FiHeart size={18} />
-            </Link>
+            {/* Wishlist — only in B2C mode */}
+            {!settingsLoading && !isB2B && (
+              <Link to="/wishlist" className="site-nav-icon-btn hide-on-mobile" title="Wishlist">
+                <FiHeart size={18} />
+              </Link>
+            )}
 
             {/* View Orders */}
             {!isB2B && user && (
@@ -311,12 +330,14 @@ export default function Navbar() {
             <FiSearch size={16} />
             <input placeholder="Search…" value={search} onChange={e => setSearch(e.target.value)} />
           </form>
-          <SearchDropdown 
-            query={search} 
-            allProducts={allProducts} 
-            onSelect={() => { setSearch(""); setMobileOpen(false); }}
-            onClose={() => setSearch("")} 
-          />
+          {isMobile && (
+            <SearchDropdown
+              query={search}
+              allProducts={allProducts}
+              onSelect={() => { setSearch(""); setMobileOpen(false); }}
+              onClose={() => setSearch("")}
+            />
+          )}
         </div>
 
         {visibleNavLinks.map((l, idx) => (
@@ -327,10 +348,12 @@ export default function Navbar() {
           </NavLink>
         ))}
 
-        {/* Wishlist Link in mobile drawer */}
-        <Link to="/wishlist" className="site-nav-link" onClick={() => setMobileOpen(false)}>
-          <FiHeart size={16} /> Wishlist
-        </Link>
+        {/* Wishlist Link in mobile drawer — only in B2C */}
+        {!settingsLoading && !isB2B && (
+          <Link to="/wishlist" className="site-nav-link" onClick={() => setMobileOpen(false)}>
+            <FiHeart size={16} /> Wishlist
+          </Link>
+        )}
 
         {!isB2B && (
           user ? (

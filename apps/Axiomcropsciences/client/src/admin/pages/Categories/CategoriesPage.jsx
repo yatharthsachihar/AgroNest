@@ -208,6 +208,7 @@ function CategoryForm({ category, onSuccess }) {
 
 export default function CategoriesPage() {
   const pageRef     = useRef();
+  const hasAnimated = useRef(false);
   const queryClient = useQueryClient();
   const [modal,    setModal]    = useState(null);
   const [deleting, setDeleting] = useState(null);
@@ -219,9 +220,11 @@ export default function CategoriesPage() {
   });
 
   useGSAP(() => {
+    if (isLoading || hasAnimated.current) return;
+    hasAnimated.current = true;
     gsap.fromTo(".page-header", 
       { opacity: 0, y: -20 },
-      { opacity: 1, y: 0, duration: 0.5 }
+      { opacity: 1, y: 0, duration: 0.5, clearProps: "all" }
     );
     if (categories.length > 0) {
       gsap.fromTo(".cat-card", 
@@ -229,7 +232,7 @@ export default function CategoriesPage() {
         { opacity: 1, stagger: 0.07, duration: 0.6, delay: 0.15, clearProps: "opacity" }
       );
     }
-  }, { scope: pageRef, dependencies: [categories.length] });
+  }, { scope: pageRef, dependencies: [isLoading] });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => categoryApi.remove(id),

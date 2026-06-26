@@ -36,15 +36,22 @@
   margin-top: 48px;
 }
 
-/* ── Category grid ── */
+/* ── Category icon row (7 + 7 layout) ── */
 .feat-cat-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 24px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 32px 16px;
+  justify-items: center;
+  margin: 0 auto;
 }
 
-@media (max-width: 900px) { .feat-cat-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 560px) { .feat-cat-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+@media (max-width: 900px) {
+  .feat-cat-grid { grid-template-columns: repeat(4, 1fr); gap: 28px 12px; }
+}
+
+@media (max-width: 560px) {
+  .feat-cat-grid { grid-template-columns: repeat(3, 1fr); gap: 26px 8px; }
+}
 
 /* Category card skeleton */
 .site-cat-card-skeleton {

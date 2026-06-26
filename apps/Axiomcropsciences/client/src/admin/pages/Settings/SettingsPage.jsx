@@ -138,16 +138,18 @@ function Section({ icon, title, subtitle, children }) {
 // ── Main Settings Page ────────────────────────────────────────
 export default function SettingsPage() {
   const pageRef     = useRef();
+  const hasAnimated = useRef(false);
   const { hasPermission } = useAuthStore();
   const canEdit = hasPermission('settings', 'full');
   const queryClient = useQueryClient();
   const [form, setForm] = useState(null);
 
   useGSAP(() => {
-    if (!form) return;
-    gsap.from(".page-header",      { opacity: 0, y: -20, duration: 0.5 });
-    gsap.from(".settings-section", { opacity: 0, y: 30, stagger: 0.1, duration: 0.6, delay: 0.15 });
-  }, { scope: pageRef, dependencies: [form] });
+    if (!form || hasAnimated.current) return;
+    hasAnimated.current = true;
+    gsap.from(".page-header",      { opacity: 0, y: -20, duration: 0.5, clearProps: "all" });
+    gsap.from(".settings-section", { opacity: 0, y: 30, stagger: 0.1, duration: 0.6, delay: 0.15, clearProps: "all" });
+  }, { scope: pageRef, dependencies: [!!form] });
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["settings"],
@@ -155,8 +157,8 @@ export default function SettingsPage() {
   });
 
   useEffect(() => {
-    if (settings) setForm(JSON.parse(JSON.stringify(settings)));
-  }, [settings]);
+    if (settings && !form) setForm(JSON.parse(JSON.stringify(settings)));
+  }, [settings]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const saveMutation = useMutation({
     mutationFn: (data) => settingsApi.update(data),

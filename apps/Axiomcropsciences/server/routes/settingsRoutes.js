@@ -1,9 +1,37 @@
 const express = require('express');
-const Settings = require('../models/Settings');
+const Settings      = require('../models/Settings');
+const StoreSettings = require('../models/StoreSettings');
 const router = express.Router();
 
-// Optionally attach protect — if token present, verify it, but don't block unauthenticated reads/writes
-// for the admin panel in development. Re-add strict auth when deploying.
+// Sync Settings → StoreSettings (keeps the orphaned collection in sync)
+async function syncStoreSettings(settings) {
+  try {
+    let ss = await StoreSettings.findOne();
+    if (!ss) ss = new StoreSettings();
+    ss.storeName     = settings.storeName      || ss.storeName;
+    ss.tagline       = settings.tagline        || ss.tagline;
+    ss.logo          = settings.storeLogo      || ss.logo;
+    ss.storeMode     = settings.storeMode      || ss.storeMode;
+    ss.contactEmail  = settings.storeEmail     || ss.contactEmail;
+    ss.contactPhone  = settings.storePhone     || ss.contactPhone;
+    ss.address       = settings.storeAddress   || ss.address;
+    ss.heroTitle     = settings.heroTitle      || ss.heroTitle;
+    ss.heroSubtitle  = settings.heroSubtitle   || ss.heroSubtitle;
+    ss.showPricesInB2B = settings.showPricesInB2B ?? ss.showPricesInB2B;
+    ss.freeShippingAbove = settings.freeShippingAbove ?? ss.freeShippingAbove;
+    if (settings.socialLinks) {
+      ss.socialLinks = {
+        ...ss.socialLinks?.toObject?.() || {},
+        ...settings.socialLinks?.toObject?.() || {},
+      };
+    }
+    await ss.save();
+  } catch (err) {
+    // Non-fatal — log but don't block the main settings save
+    console.warn('[StoreSettings sync]', err.message);
+  }
+}
+
 const optionalAuth = (req, res, next) => {
   const { protect } = require('../middleware/authMiddleware');
   const token = req.headers.authorization?.split(' ')[1];
@@ -11,7 +39,7 @@ const optionalAuth = (req, res, next) => {
   next();
 };
 
-// GET /api/settings  — public, always works
+// GET /api/settings
 router.get('/', async (req, res) => {
   try {
     let settings = await Settings.findOne();
@@ -20,13 +48,12 @@ router.get('/', async (req, res) => {
   } catch (err) { res.status(500).json({ message: err.message }); }
 });
 
-// PUT /api/settings  — safe merge, won't wipe nested fields
+// PUT /api/settings
 router.put('/', async (req, res) => {
   try {
     let settings = await Settings.findOne();
     if (!settings) settings = new Settings();
 
-    // Safe field-by-field update — prevents Object.assign nuking nested subdocs
     const allowed = [
       'storeName','tagline','storeLogo','storeLogoHeight','storeLogoXOffset','storeLogoYOffset','currency','gstNumber',
       'storeEmail','storePhone','storeAddress',
@@ -51,28 +78,24 @@ router.put('/', async (req, res) => {
       'smtpEnabled','smtpFromName','smtpFromEmail',
       'cloudinaryEnabled','cloudinaryCloudName','cloudinaryApiKey','cloudinaryApiSecret','cloudinaryUploadPreset',
       'whatsappEnabled','whatsappNumber','whatsappApiToken',
-      // SEO
       'seoSiteName','seoTitle','seoDescription','seoCanonical','seoKeywords','seoGoogleVerify','seoBingVerify',
       'ogTitle','ogDescription','ogImage','twitterCard','twitterHandle','twitterTitle','twitterDescription',
       'schemaOrgName','schemaOrgUrl','schemaOrgLogo','schemaOrgFounded','schemaOrgPhone','schemaOrgEmail',
       'schemaAddress','schemaCity','schemaState','schemaPostal',
       'robotsTxt','gaId','gtmId','fbPixelId','hotjarId',
-      // Header & Footer Customizer
       'navLinks','footerTagline','footerQuickLinks','footerSupportLinks','footerCompanyLinks','footerCopyright','footerPayments',
-      'footerLogoHeight', 'footerLogoXOffset',
-      'socialFacebook','socialInstagram','socialWhatsapp','socialYoutube','socialTwitter','socialLinkedin'
+      'footerLogoHeight','footerLogoXOffset',
+      'socialFacebook','socialInstagram','socialWhatsapp','socialYoutube','socialTwitter','socialLinkedin',
     ];
 
     allowed.forEach(key => {
       if (req.body[key] !== undefined) settings[key] = req.body[key];
     });
 
-    // Ensure replaced arrays-of-objects are flagged dirty so Mongoose saves them.
     ['homeTestimonials','contactOffices','homeBrands','aboutWhyUs','aboutTeam','aboutMilestones'].forEach(key => {
       if (req.body[key] !== undefined) settings.markModified(key);
     });
 
-    // Handle nested objects explicitly
     if (req.body.socialLinks && typeof req.body.socialLinks === 'object') {
       settings.socialLinks = { ...settings.socialLinks?.toObject?.() || {}, ...req.body.socialLinks };
     }
@@ -85,6 +108,10 @@ router.put('/', async (req, res) => {
     }
 
     await settings.save();
+
+    // ── Keep StoreSettings collection in sync ──
+    await syncStoreSettings(settings);
+
     res.json(settings);
   } catch (err) {
     console.error('Settings save error:', err.message);

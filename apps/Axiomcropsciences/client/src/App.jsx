@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { QueryClient, QueryClientProvider }        from "@tanstack/react-query";
 import { Toaster }                                  from "react-hot-toast";
 import { UserProvider }                             from "./context/UserContext";
+import WhatsAppButton                               from "./components/common/WhatsAppButton";
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -179,6 +180,7 @@ export default function App() {
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
         </UserProvider>
+        <WhatsAppButton />
       </BrowserRouter>
 
       <Toaster

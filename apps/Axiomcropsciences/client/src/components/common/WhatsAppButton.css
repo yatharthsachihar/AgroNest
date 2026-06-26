@@ -1,0 +1,72 @@
+/* ============================================================
+   FLOATING WHATSAPP BUTTON — bottom-right of viewport
+   ============================================================ */
+.whatsapp-float {
+  position: fixed;
+  bottom: 28px;
+  right: 28px;
+  z-index: 9999;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  background: #25D366;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  box-shadow:
+    0 4px 14px rgba(37, 211, 102, 0.45),
+    0 2px 6px rgba(0, 0, 0, 0.15);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  cursor: pointer;
+  text-decoration: none;
+}
+
+.whatsapp-float:hover {
+  transform: scale(1.1) translateY(-2px);
+  box-shadow:
+    0 6px 24px rgba(37, 211, 102, 0.55),
+    0 0 40px rgba(37, 211, 102, 0.25),
+    0 4px 10px rgba(0, 0, 0, 0.12);
+}
+
+.whatsapp-float:active {
+  transform: scale(0.96);
+}
+
+.whatsapp-float-icon {
+  width: 40px;
+  height: 40px;
+  fill: #fff;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+/* Subtle pulse animation to draw attention */
+.whatsapp-float::after {
+  content: "";
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 2px solid rgba(37, 211, 102, 0.4);
+  animation: whatsappPulse 2s ease-in-out infinite;
+}
+
+@keyframes whatsappPulse {
+  0%, 100% { transform: scale(1); opacity: 1; }
+  50%      { transform: scale(1.15); opacity: 0; }
+}
+
+/* ── Responsive ── */
+@media (max-width: 560px) {
+  .whatsapp-float {
+    width: 56px;
+    height: 56px;
+    bottom: 20px;
+    right: 16px;
+  }
+  .whatsapp-float-icon {
+    width: 30px;
+    height: 30px;
+  }
+}

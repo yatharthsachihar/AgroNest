@@ -94,6 +94,7 @@ const TABS = [
 
 export default function HomepageBuilderPage() {
   const pageRef     = useRef();
+  const hasAnimated = useRef(false);
   const queryClient = useQueryClient();
   const [searchParams] = useSearchParams();
   const validTab = (t) => ["hero", "announcement", "sections", "stats", "reviews", "brands", "contact", "cta"].includes(t);
@@ -112,10 +113,11 @@ export default function HomepageBuilderPage() {
   const [saved, setSaved] = useState(false);
 
   useGSAP(() => {
-    if (!form) return;
-    gsap.from(".page-header", { opacity: 0, y: -20, duration: 0.5 });
-    gsap.from(".hpb-card",    { opacity: 0, y: 30, stagger: 0.08, duration: 0.5, delay: 0.1 });
-  }, { scope: pageRef, dependencies: [tab, form] });
+    if (!form || hasAnimated.current) return;
+    hasAnimated.current = true;
+    gsap.from(".page-header", { opacity: 0, y: -20, duration: 0.5, clearProps: "all" });
+    gsap.from(".hpb-card",    { opacity: 0, y: 30, stagger: 0.08, duration: 0.5, delay: 0.1, clearProps: "all" });
+  }, { scope: pageRef, dependencies: [!!form] });
 
   const { data: settings, isLoading } = useQuery({
     queryKey: ["settings"],

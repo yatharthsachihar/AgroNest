@@ -34,8 +34,8 @@ export default function CollectionsPage() {
   const visible = filter ? products.filter(p => p[filter]) : products;
 
   useGSAP(() => {
-    gsap.from(".page-header", { opacity: 0, y: -20, duration: 0.4 });
-    gsap.from(".coll-summary", { opacity: 0, y: 16, duration: 0.4, delay: 0.05 });
+    gsap.from(".page-header", { opacity: 0, y: -20, duration: 0.4, clearProps: "all" });
+    gsap.from(".coll-summary", { opacity: 0, y: 16, duration: 0.4, delay: 0.05, clearProps: "all" });
   }, []);
 
   const flagMutation = useMutation({

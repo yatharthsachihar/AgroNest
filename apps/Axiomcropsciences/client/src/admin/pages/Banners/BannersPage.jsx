@@ -109,6 +109,7 @@ function BannerForm({ banner, onSuccess }) {
 // ── Main Banners Page ───────────────────────────────────────
 export default function BannersPage() {
   const pageRef     = useRef();
+  const hasAnimated = useRef(false);
   const { hasPermission } = useAuthStore();
   const canEdit = hasPermission('banners', 'full');
   const queryClient = useQueryClient();
@@ -121,12 +122,13 @@ export default function BannersPage() {
   });
 
   useGSAP(() => {
-    if (isLoading) return;
-    gsap.from(".page-header",   { opacity: 0, y: -20, duration: 0.5 });
+    if (isLoading || hasAnimated.current) return;
+    hasAnimated.current = true;
+    gsap.from(".page-header",   { opacity: 0, y: -20, duration: 0.5, clearProps: "all" });
     if (banners && banners.length > 0) {
-      gsap.from(".banner-item",   { opacity: 0, y: 30, stagger: 0.07, duration: 0.6, delay: 0.15 });
+      gsap.from(".banner-item",   { opacity: 0, y: 30, stagger: 0.07, duration: 0.6, delay: 0.15, clearProps: "all" });
     }
-  }, { scope: pageRef, dependencies: [isLoading, banners] });
+  }, { scope: pageRef, dependencies: [isLoading] });
 
   const deleteMutation = useMutation({
     mutationFn: (id) => bannerApi.remove(id),

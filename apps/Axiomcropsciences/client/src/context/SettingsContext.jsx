@@ -1,4 +1,4 @@
-import { createContext, useContext, useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, useRef } from 'react';
 import API from '../api/axios';
 import { useTheme } from './ThemeContext';
 
@@ -166,6 +166,9 @@ function applyThemeVars(s, theme) {
 
 export function SettingsProvider({ children }) {
   const { theme, setTheme } = useTheme();
+  // Tracks whether we've already adopted the DB theme once (so polls don't
+  // override the user's live toggle).
+  const themeSyncedRef = useRef(false);
 
   // ── Initialise from cache instantly — no flash ──
   const cached = loadCached();
@@ -189,7 +192,15 @@ export function SettingsProvider({ children }) {
           }
           setSettingsState(merged);
           saveCache(merged);          // persist so next refresh has no flash
-          if (merged.siteTheme) setTheme(merged.siteTheme);
+          // Adopt the DB's saved theme only ONCE, on the first load. The 15s
+          // poll / focus refetch must NOT call setTheme again, or it would
+          // clobber the user's live light/dark toggle and snap the theme back
+          // (the bug seen on mobile/live). After first sync the user's toggle
+          // — persisted via ThemeContext + localStorage — is the source of truth.
+          if (merged.siteTheme && !themeSyncedRef.current) {
+            themeSyncedRef.current = true;
+            setTheme(merged.siteTheme);
+          }
         }
       })
       .catch(() => {})

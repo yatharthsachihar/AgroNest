@@ -21,7 +21,6 @@ const FALLBACK_SLIDES = [
     _id: "f1",
     title: "Grow More. Worry Less. Harvest Better.",
     subtitle: "From certified seeds to organic fertilizers — everything your farm needs, delivered to your door.",
-    badge: "India's #1 AgriStore",
     ctaText: "Shop Now",
     link: "/products",
     image: "https://images.unsplash.com/photo-1500937386664-56d1dfef3854?w=1600&q=85",
@@ -30,7 +29,6 @@ const FALLBACK_SLIDES = [
     _id: "f2",
     title: "Certified Organic Seeds for Every Season",
     subtitle: "Highest germination rates. ISI certified. Delivered pan-India in 48 hours.",
-    badge: "New Arrivals",
     ctaText: "Explore Seeds",
     link: "/products?category=seeds",
     image: "https://images.unsplash.com/photo-1416879595882-3373a0480b5b?w=1600&q=85",
@@ -39,7 +37,6 @@ const FALLBACK_SLIDES = [
     _id: "f3",
     title: "Bulk Orders & B2B Wholesale",
     subtitle: "Custom pricing for cooperatives, agri-businesses & distributors across India.",
-    badge: "B2B Program",
     ctaText: "Request Quote",
     link: "/contact?type=bulk",
     image: "https://images.unsplash.com/photo-1625246333195-78d9c38ad449?w=1600&q=85",
@@ -48,7 +45,7 @@ const FALLBACK_SLIDES = [
 
 export default function HeroSection() {
   const navigate     = useNavigate();
-  const { settings } = useSettings();
+  const { settings, isB2B, loading: settingsLoading } = useSettings();
   const [current, setCurrent] = useState(0);
   const [playing, setPlaying] = useState(true);
   const [search,  setSearch]  = useState("");
@@ -141,8 +138,13 @@ export default function HeroSection() {
 
             {/* CTAs */}
             <div className="hero-ctas">
-              <Link to={settings?.heroCTA1Link || slide?.link || "/products"} className="hero-cta-primary">
-                {settings?.heroCTA1Text || slide?.ctaText || "Shop Now"}
+              <Link
+                to={isB2B ? "/contact" : (settings?.heroCTA1Link || slide?.link || "/products")}
+                className="hero-cta-primary"
+              >
+                {isB2B
+                  ? (settings?.b2bCtaText || "Enquire Now")
+                  : (settings?.heroCTA1Text || slide?.ctaText || "Shop Now")}
                 <FiArrowRight />
               </Link>
               <Link to={settings?.heroCTA2Link || "/categories"} className="hero-cta-secondary">
@@ -208,20 +210,22 @@ export default function HeroSection() {
 
       </section>
 
-      {/* ── Embedded Trust Bar ── */}
-      <div className="hero-trust-bar">
-        <div className="hero-trust-bar-inner">
-          {TRUST_ITEMS.map(t => (
-            <div key={t.title} className="hero-trust-bar-item">
-              <span className="hero-trust-bar-icon">{t.icon}</span>
-              <div>
-                <div className="hero-trust-bar-title">{t.title}</div>
-                <div className="hero-trust-bar-desc">{t.desc}</div>
+      {/* ── Trust Bar ── hidden in B2B, no flash via settingsLoading guard ── */}
+      {!settingsLoading && !isB2B && (
+        <div className="hero-trust-bar">
+          <div className="hero-trust-bar-inner">
+            {TRUST_ITEMS.map(t => (
+              <div key={t.title} className="hero-trust-bar-item">
+                <span className="hero-trust-bar-icon">{t.icon}</span>
+                <div>
+                  <div className="hero-trust-bar-title">{t.title}</div>
+                  <div className="hero-trust-bar-desc">{t.desc}</div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
-      </div>
+      )}
     </>
   );
 }

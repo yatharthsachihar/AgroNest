@@ -274,9 +274,9 @@ export default function InventoryPage() {
   const PER_PAGE = 20;
 
   useGSAP(() => {
-    gsap.from(".page-header",    { opacity: 0, y: -20, duration: 0.6, ease: "power3.out" });
-    gsap.from(".page-toolbar",   { opacity: 0, y: 20,  duration: 0.6, delay: 0.1, ease: "power3.out" });
-    gsap.from(".inventory-card", { opacity: 0, y: 30,  duration: 0.7, delay: 0.2, ease: "power3.out" });
+    gsap.from(".page-header",    { opacity: 0, y: -20, duration: 0.6, ease: "power3.out", clearProps: "all" });
+    gsap.from(".page-toolbar",   { opacity: 0, y: 20,  duration: 0.6, delay: 0.1, ease: "power3.out", clearProps: "all" });
+    gsap.from(".inventory-card", { opacity: 0, y: 30,  duration: 0.7, delay: 0.2, ease: "power3.out", clearProps: "all" });
   }, { scope: pageRef });
 
   const { data, isLoading } = useQuery({

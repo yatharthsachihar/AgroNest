@@ -36,7 +36,7 @@ export function FeaturedCategories() {
             <h2 className="site-section-heading">Everything Your Farm Needs</h2>
           </div>
           <div className="feat-cat-grid">
-            {Array.from({ length: 6 }).map((_, i) => (
+            {Array.from({ length: 14 }).map((_, i) => (
               <div key={i} className="site-cat-card-skeleton" />
             ))}
           </div>
@@ -60,11 +60,11 @@ export function FeaturedCategories() {
           </p>
         </div>
         <div className="feat-cat-grid">
-          {cats.slice(0, 6).map((cat, i) => (
+          {cats.slice(0, 14).map((cat, i) => (
             <CategoryCard key={cat._id} category={cat} index={i} />
           ))}
         </div>
-        {cats.length > 6 && (
+        {cats.length > 14 && (
           <div className="home-section-cta">
             <Link to="/categories" className="site-btn-secondary">
               View All Categories <FiArrowRight />
