@@ -129,15 +129,11 @@ export default function ProductForm({ product = null }) {
     const unit = match[2];
     if (!Number.isFinite(val) || val <= 0) return null;
 
-    // Everything normalizes to grams/ml as the common base unit.
+    // Everything normalizes to grams as the common base unit.
     if (['kg', 'kgs'].includes(unit))                                return val * 1000;
-    if (['l', 'litre', 'litres', 'liter', 'liters'].includes(unit))  return val * 1000;
-    if (['g', 'gm', 'gms', 'gram', 'grams', 'ml'].includes(unit))    return val;
-    if (['mg'].includes(unit))                                       return val / 1000;
-    if (['lb', 'lbs', 'pound', 'pounds'].includes(unit))             return val * 453.592;
-    if (['oz', 'ounce', 'ounces'].includes(unit))                    return val * 28.3495;
+    if (['g', 'gm', 'gms', 'gram', 'grams'].includes(unit))          return val;
 
-    return null; // unrecognized unit (e.g. "piece", "dozen") — can't ratio those
+    return null; // unrecognized unit (e.g. "litre", "ml") — restricted to kg/g
   };
 
   const baseWeightG  = parseWeight(watch("weight"));
@@ -285,7 +281,7 @@ export default function ProductForm({ product = null }) {
 
                   {weightInvalid && (
                     <span style={{ fontSize: 12, color: "var(--danger)" }}>
-                      Couldn't read this weight — use a number plus unit, like "250g", "0.5kg", or "500ml".
+                      Couldn't read this weight — please use only kg or g, like "250g" or "1kg".
                     </span>
                   )}
                   {!weightInvalid && ratioPct !== null && (
