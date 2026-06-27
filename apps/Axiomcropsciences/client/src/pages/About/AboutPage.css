@@ -221,8 +221,15 @@
   .ab-story-grid { grid-template-columns: 1fr; gap: 28px; }
   .ab-why-grid   { grid-template-columns: repeat(2, 1fr); }
   .ab-team-grid  { grid-template-columns: repeat(2, 1fr); }
+  .ab-hero {
+    min-height: 40vh;
+  }
 }
 @media (max-width: 560px) {
+  .ab-hero {
+    min-height: auto;
+    padding: 60px 0 60px;
+  }
   .ab-section { padding: 56px 0; }
   .ab-why-grid, .ab-team-grid { grid-template-columns: 1fr; }
 }
